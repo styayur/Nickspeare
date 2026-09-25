@@ -10,5 +10,5 @@ devjason/markov_poem (word-level Markov text generation) and Rickmsd/namemaker
 from .generator import NicknameGenerator, generate
 from . import lexicon, corpus, phonetics, combinators, suffixes
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __all__ = ["NicknameGenerator", "generate", "lexicon", "corpus", "phonetics", "combinators", "suffixes"]

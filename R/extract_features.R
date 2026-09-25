@@ -61,7 +61,14 @@ ARCHAIC <- c("the", "thou", "thee", "thy", "thine", "ye", "anon", "prithee",
   "betwixt", "ere", "dost", "doth", "hath", "shalt", "wilt", "art", "ay", "nay",
   "sirrah", "zounds", "marry", "beshrew", "gramercy", "certes", "sooth", "welladay")
 
-norm <- function(x) tolower(gsub("[^a-z]", "", x))
+norm <- function(x) gsub("[^a-z]", "", tolower(x))
+
+# Share exclusions and speaker cohorts with the Python implementation.
+config <- fromJSON(file.path(repo, "nickspeare", "data", "extraction.json"))
+STOPWORDS <- config$stopwords
+PROPER_NAMES <- config$proper_names
+TAVERN <- config$tavern_speakers
+KINGS <- config$kings_speakers
 
 speaker_matches <- function(ids, names) {
   any(vapply(names, function(n) any(ids == n | startsWith(ids, paste0(n, "_"))), logical(1)))
@@ -72,10 +79,11 @@ read_play <- function(path) {
   xml_ns_strip(doc)
   sps <- xml_find_all(doc, "//sp")
   do.call(rbind, lapply(sps, function(sp) {
-    who <- xml_attr(sp, "who") %||% ""
+    who <- xml_attr(sp, "who")
+    if (is.na(who)) who <- ""
     ids <- trimws(unlist(strsplit(who, "#", fixed = TRUE)))
     ids <- ids[nzchar(ids)]
-    words <- xml_text(xml_find_all(sp, ".//w"))
+    words <- xml_text(xml_find_all(sp, ".//w[not(ancestor::stage) and not(ancestor::speaker)]"))
     data.frame(
       speaker = if (length(ids)) ids[1] else "",
       speakers = I(list(ids)),
@@ -92,7 +100,7 @@ freqs <- function(speeches, names) {
     if (!speaker_matches(speeches$speakers[[i]], names)) next
     for (w in speeches$words[[i]]) {
       w <- norm(w)
-      if (nchar(w) < 3 || w %in% STOPWORDS) next
+      if (nchar(w) < 3 || w %in% STOPWORDS || w %in% PROPER_NAMES) next
       counts[[w]] <- (counts[[w]] %||% 0L) + 1L
     }
   }
@@ -101,14 +109,20 @@ freqs <- function(speeches, names) {
 
 top_characteristic <- function(target, other, n = 40) {
   words <- names(target)
+  vocab <- length(union(names(target), names(other)))
+  nt <- sum(unlist(target))
+  no <- sum(unlist(other))
   score <- vapply(words, function(w) {
     cnt <- target[[w]]
-    if (cnt < 2) return(0)
-    cnt / (1 + (other[[w]] %||% 0L))
+    if (cnt < 2) return(-Inf)
+    alt <- other[[w]] %||% 0L
+    log((cnt + 0.5) / (nt - cnt + 0.5 * (vocab - 1))) -
+      log((alt + 0.5) / (no - alt + 0.5 * (vocab - 1)))
   }, numeric(1))
   names(score) <- words
-  score <- sort(score, decreasing = TRUE)
-  head(names(score), n)
+  counts <- vapply(words, function(w) as.numeric(target[[w]]), numeric(1))
+  score <- score[order(score, counts, words, decreasing = TRUE)]
+  head(names(score)[is.finite(score)], n)
 }
 
 # ---- Main -------------------------------------------------------------------
@@ -118,8 +132,7 @@ main <- function() {
   for (code in c("1H4", "2H4", "H5")) {
     path <- file.path(folger_dir, paste0(code, ".xml"))
     if (!file.exists(path)) {
-      warning("missing ", path)
-      next
+      stop("missing ", path)
     }
     plays[[code]] <- read_play(path)
   }

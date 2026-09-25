@@ -34,6 +34,8 @@ def build_parser() -> argparse.ArgumentParser:
     gen.add_argument("--year-theme", default=None,
                      help="pin the historical year (e.g. agincourt, globe)")
     gen.add_argument("--digits", type=int, default=None, help="digit count for number suffix")
+    gen.add_argument("--royal-affinity", type=float, default=.65,
+                     help="royal log-odds weighting from 0 to 1 (default: .65)")
     gen.add_argument("--no-dedupe", action="store_true", help="allow duplicate results")
     gen.add_argument("--json", action="store_true", help="emit JSON with provenance")
     _add_common(gen)
@@ -65,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "generate":
         rule = None if args.rule == "all" else args.rule
         suffix = None if args.suffix == "none" else args.suffix
-        gen = generator.NicknameGenerator(seed=args.seed, corpus_paths=args.corpus)
+        gen = generator.NicknameGenerator(seed=args.seed, corpus_paths=args.corpus, royal_affinity=args.royal_affinity)
         nicks = gen.generate(
             count=args.count,
             rule=rule,

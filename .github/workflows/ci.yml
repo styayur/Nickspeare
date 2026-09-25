@@ -1,0 +1,44 @@
+name: Verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.9', '3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '${{ matrix.python }}'
+      - run: python -m pip install -e . build
+      - run: python -m unittest discover -s tests -v
+      - run: python -m build
+      - run: python -m nickspeare generate --rule markov_epithet --seed 42 --json
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm test
+      - run: python -m pip install playwright
+      - run: python -m playwright install --with-deps chromium
+      - name: Browser integration
+        run: |
+          python -m http.server 8765 --directory docs &
+          server=$!
+          trap 'kill "$server"' EXIT
+          python -c "import urllib.request,time; time.sleep(2); urllib.request.urlopen('http://127.0.0.1:8765')"
+          python scripts/check_browser.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-screenshots
+          path: work/screenshots

@@ -53,17 +53,13 @@ class CharMarkov:
         if not self._chain:
             return seed or ""
         for _ in range(max_tries):
-            key: tuple[str, ...]
-            if seed:
-                pad = ("^",) * self.order
-                seeded = pad + tuple(seed.lower())
-                key = seeded[:self.order]
-                if key not in self._chain:
-                    key = rng.choice([k for k in self._chain if k[0] == "^"])
-            else:
-                key = rng.choice([k for k in self._chain if k[0] == "^"])
-
-            out: list[str] = []
+            # Condition on a real prefix; the old slice always selected ^^^.
+            prefix = (seed or "").lower()[:max(1, self.order - 1)]
+            key = (("^",) * self.order + tuple(prefix))[-self.order:]
+            if key not in self._chain:
+                prefix = ""
+                key = ("^",) * self.order
+            out: list[str] = list(prefix)
             for _ in range(max_len + self.order + 2):
                 options = self._chain.get(key)
                 if not options:
@@ -90,14 +86,14 @@ class WordMarkov:
     def train(self, tokens: list[str]) -> "WordMarkov":
         if len(tokens) <= self.order:
             return self
+        # Every call is a speech/line boundary, including lower-case token streams.
+        self._starts.append(tuple(tokens[:self.order]))
         for i in range(len(tokens) - self.order):
             key = tuple(tokens[i:i + self.order])
             nxt = tokens[i + self.order]
             self._db.setdefault(key, []).append(nxt)
             if key[0].istitle() or key[0][0].isupper():
                 self._starts.append(key)
-        if not self._starts:
-            self._starts = [tuple(tokens[:self.order])]
         return self
 
     def generate(self, rng: random.Random, n_words: int = 4, max_words: int = 8) -> str:
@@ -139,6 +135,8 @@ def load_gutenberg(path: str | Path) -> list[str]:
     end = text.find("*** END")
     if start != -1:
         start = text.find("\n", start) + 1
+    else:
+        start = 0
     if end != -1:
         text = text[start:end]
     else:
@@ -163,12 +161,20 @@ def parse_folger(path: str | Path) -> dict[str, object]:
     stage_words: list[str] = []
     for sp in root.iter(f"{_TEI}sp"):
         who = sp.attrib.get("who", "")
-        speaker_ids = [s.strip() for s in who.split("#") if s.strip()]
+        speaker_ids = [s.lstrip("#") for s in who.split() if s.lstrip("#")]
         primary = speaker_ids[0] if speaker_ids else ""
         words: list[str] = []
-        for w in sp.iter(f"{_TEI}w"):
-            if w.text and w.text.strip():
-                words.append(w.text.strip())
+        def spoken(node):
+            for child in node:
+                if child.tag in (f"{_TEI}stage", f"{_TEI}speaker"):
+                    continue
+                if child.tag == f"{_TEI}w":
+                    value = "".join(child.itertext()).strip()
+                    if value:
+                        words.append(value)
+                else:
+                    spoken(child)
+        spoken(sp)
         if words:
             speeches.append(
                 {"speaker": primary, "speakers": speaker_ids, "words": words}

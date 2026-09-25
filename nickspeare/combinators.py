@@ -36,6 +36,7 @@ class Fusion:
     kind: str
     parts: list[str] = field(default_factory=list)
     description: str = ""
+    trace: list[dict] = field(default_factory=list)
 
     def as_dict(self) -> dict:
         return {
@@ -55,29 +56,33 @@ def _content_words(quote: str) -> list[str]:
     return [w for w in words if w not in _STOPWORDS and len(w) >= 4]
 
 
-def rogue_to_king(lex, rng: random.Random, year_theme: str | None = None) -> Fusion:
+def rogue_to_king(lex, rng: random.Random, year_theme: str | None = None,
+                  royal_affinity: float = .65) -> Fusion:
     """Fuse a tavern/rogue word with a king/Agincourt word.
 
     The canonical case is ``sack + agincourt + 1415``.  We alternate between a
     hard bridge-blend and a syllable-boundary blend for variety.
     """
     tavern = rng.choice(lex.category("tavern") or ["sack"])
-    kings = rng.choice(lex.category("kings") or ["agincourt"])
+    from .provenance import atlas
+    import math
+    choices = lex.category("kings") or ["agincourt"]
+    weights = [math.exp(max(-3, min(3, atlas()["words"].get(_stem(w), {}).get("log_odds", 0))) *
+                       (2 * royal_affinity - 1)) for w in choices]
+    kings = rng.choices(choices, weights=weights, k=1)[0]
     a, b = _stem(tavern), _stem(kings)
-    if rng.random() < 0.5:
-        core = ph.blend(a, b)
-    else:
-        core = ph.syllabic_blend(a, b)
-    if not core:
-        core = a + b
-    year = ""
-    if rng.random() < 0.6:
-        year = _year_suffix(rng, year_theme)
+    from .provenance import rank_blends
+    candidates = rank_blends(a, b)
+    best = candidates[0]
+    core = best["text"]
     return Fusion(
-        text=core + year,
+        text=core,
         kind="rogue_to_king",
         parts=[tavern, kings],
-        description=f"{tavern} + {kings}{(' + ' + year) if year else ''}",
+        description=f"{tavern} + {kings}",
+        trace=[{"stage": "Eastcheap", "value": a},
+               {"stage": "Royal encounter", "value": b},
+               {"stage": "Fusion", "value": core, "candidates": candidates}],
     )
 
 
@@ -114,7 +119,7 @@ def archaic_coinage(lex, rng: random.Random, markov=None) -> Fusion:
         base = raw or _stem(seed)
     else:
         base = _stem(rng.choice(archaic))
-    affix = rng.choice(lex.category("affixes") or ["-eth"])
+    affix = rng.choice(lex.category("affixes") or ["-eth"]).lstrip("-")
     style = rng.random()
     if style < 0.34:
         core = ph.truncate(base, rng.randint(3, max(3, len(base) - 1)), affix)

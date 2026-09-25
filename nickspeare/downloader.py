@@ -1,4 +1,4 @@
-"""Download the public-domain Shakespeare corpora used by Nickspeare."""
+"""Download Shakespeare corpora; source editions retain their own licenses."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ FOLGER_PLAYS = {
 
 
 def default_cache() -> Path:
-    root = Path(__file__).resolve().parent.parent
+    root = Path.cwd()
     return root / ".cache" / "corpus"
 
 

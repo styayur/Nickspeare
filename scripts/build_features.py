@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from collections import Counter
@@ -93,8 +94,11 @@ def _freqs(speeches, names: set[str]) -> Counter:
 
 def top_characteristic(target: Counter, other: Counter, n: int = 40) -> list[str]:
     ranked = []
+    vocab = len(set(target) | set(other))
+    nt, no = sum(target.values()), sum(other.values())
     for word, count in target.items():
-        score = count / (1 + other.get(word, 0))
+        alt = other.get(word, 0)
+        score = math.log((count + .5) / (nt - count + .5 * (vocab - 1))) - math.log((alt + .5) / (no - alt + .5 * (vocab - 1)))
         if count < 2:
             continue
         ranked.append((score, count, word))
@@ -117,8 +121,7 @@ def build(folger_dir: Path, out_dir: Path) -> None:
     for code in ("1H4", "2H4", "H5"):
         path = folger_dir / f"{code}.xml"
         if not path.exists():
-            print(f"warning: missing {path}", file=sys.stderr)
-            continue
+            raise FileNotFoundError(path)
         parsed = corpus.parse_folger(path)
         plays[code] = parsed["speeches"]
 

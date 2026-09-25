@@ -1,164 +1,140 @@
 # Nickspeare
 
-> 从酒馆浪子到王者阿金库尔 —— 用莎士比亚语料生成网名 / nickname 的 Python 程序。
-> From tavern rogue to Agincourt king: a Python Shakespearean nickname generator.
+[![Verify](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
 
-**Nickspeare** fuses Early Modern English vocabulary with the semiotics of
-Shakespeare's history plays to generate usernames.  On one side stands
-Falstaff's Eastcheap tavern (`sack`, `canakin`, `varlet`, `rogue`); on the
-other stands the martial kingship of Henry V (`agincourt`, `crispin`, `crown`,
-`majesty`).  The generator's signature move is the *rogue-to-king* fusion:
+**Shakespearean nickname generator — from Eastcheap rogue to Agincourt king.**
 
+[Open the composing room](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Contributing](CONTRIBUTING.md) · [Source attribution](DATA_SOURCES.md)
+
+把 Eastcheap 的酒馆词汇与 Agincourt 的王权意象融合成网名。每个名字都可以追溯原词、人物、剧目、语义阵营、融合步骤与年代含义；生成词本身始终标明为新造词。
+
+```text
+sack + agincourt → sackagincourt → Sackagincourt1415
 ```
-sack + agincourt + 1415  ->  Sackagincourt1415
-```
 
-## Live demo
+The browser is an Early Modern composing room: classical serif text, monospace
+parameters and provenance, paper white, black ink and dark red. Use **FORGE NAME**,
+inspect the paper trail, follow the four-stage formation, and export a JSON record.
+Replay links preserve the settings and selected impression. Everything runs locally
+in the browser; there is no generation API or API key.
 
-A browser demo is published on GitHub Pages:
+## What is inside
 
-**https://styayur.github.io/Nickspeare/**
+- **Source evidence:** 195 indexed words in the current three-play atlas, with
+  speaker identities, printed line labels, speech/word XML IDs and source hashes.
+- **Semantic affiliation:** add-half smoothed log odds contrast selected tavern
+  and royal speaker groups. Royal affinity controls weighted ingredient selection.
+- **Ranked fusion:** compare overlap, concatenation and vowel-group cuts using
+  explicit retention, consonant-cluster and length scores; inspect alternatives.
+- **Character Markov:** order-three conditional generation with real prefix
+  conditioning. Browser records include transitions, probabilities and fallbacks.
+- **Chronology:** distinguish story history, biography, composition context and
+  publication; 1413 is coronation, 1415 is Agincourt, 1623 is the First Folio.
+- **Reproducibility:** seeded generation, structured provenance, Python/Node tests,
+  browser integration checks, source manifests and a documented rebuild process.
 
-## How it works — the five-stage pipeline
+This is a literary experiment, not a historical pronunciation model. Speaker groups
+are editorial interpretations; rare-word associations are uncertain. Evidence attests
+an ingredient, not the invented name. See [methodology](docs/METHODOLOGY.md).
 
-| Stage | Name | Meaning |
-|------:|------|---------|
-| 1 | 词库分类 | Classify Shakespearean words into tavern / kingly / archaic / quotes / titles / characters / places. |
-| 2 | 文本抽取 | Extract token streams from the corpora; train character-level and word-level Markov models. |
-| 3 | 核心逻辑性组合 | Logical fusion rules: rogue-to-king semantics, quote splicing, archaic coinage. |
-| 4 | 音韵融合与截取 | Phonetic blending on syllable boundaries plus Early Modern affixation/truncation. |
-| 5 | 历史年份/数字加缀 | Suffix with historical years (1415, 1564, 1599, 1616…) or plain numbers. |
+## Install
 
-### Combination rules
+Python 3.9+; no third-party runtime packages.
 
-* **`rogue_to_king`** — blend a tavern word with a king/Agincourt word and
-  (usually) anchor it with a year: `varlet + empire + 1415 → Varletempire1415`.
-* **`quote_splice`** — strip stop-words from a famous line and blend the
-  remaining content words: *"The course of true love never did run smooth"*
-  → `trueneverlove`.
-* **`archaic_coinage`** — truncate or deform a high-frequency Early Modern
-  connective and add an affix: `thine → thhine`, `thou → thyage`.
-* **`markov_coin`** — character-level Markov coinage seeded from the lexicon
-  (the *namemaker* technique).
-* **`markov_epithet`** — word-level Markov phrase in the manner of
-  *markov_poem*: `quart argument chivalry → QuartArgumentChivalry`.
-
-## Installation
-
-Requires Python **3.9+**.  No third-party packages are needed at runtime.
-
-```bash
+```sh
 git clone https://github.com/styayur/Nickspeare.git
 cd Nickspeare
 python -m pip install -e .
 ```
 
-## Usage
+## Generate
 
-```bash
-# 20 default nicknames
-python -m nickspeare generate -n 20
-
-# reproducible run
-python -m nickspeare generate -n 20 --seed 42
-
-# rogue-to-king only, pinned to Agincourt, title case
-python -m nickspeare generate -n 10 --rule rogue_to_king \
-    --style title --year-theme agincourt
-
-# lowercase usernames with a random numeric suffix
-python -m nickspeare generate -n 10 --style lower --suffix number --digits 3
-
-# JSON output with provenance
-python -m nickspeare generate -n 5 --json
-
-# feed a corpus (Folger XML dir or plain text) into the word-Markov engine
-python -m nickspeare generate -n 10 --corpus .cache/corpus/folger/FolgerDigitalTexts_XML_Complete
+```sh
+python -m nickspeare generate -n 10 --seed 42
+python -m nickspeare generate -n 5 --rule rogue_to_king --style title --year-theme agincourt --royal-affinity 0.85 --json
+python -m nickspeare generate -n 5 --rule markov_coin --suffix none --seed 42
+python -m nickspeare generate -n 5 --rule markov_epithet --seed 42
 ```
 
-Library API:
+Python offers `rogue_to_king`, `quote_splice`, `archaic_coinage`, `markov_coin`
+and `markov_epithet`. Browser offers the first four. `--suffix none` never adds
+a year; `number` denotes a nonhistorical ornament; `both` randomly chooses a
+historical or numeric suffix. Styles: `lower`, `camel`, `title`, `snake`, `kebab`,
+`upper`. Separators transform existing phrase boundaries, not guessed compound roots.
 
 ```python
-from nickspeare import generate
+from nickspeare import NicknameGenerator
 
-for n in generate(5, seed=42):
-    print(n.variant, "|", n.kind, "|", n.description)
+engine = NicknameGenerator(seed=42, royal_affinity=0.85)
+name = engine.generate_one(rule="rogue_to_king", year_theme="agincourt")
+print(name.variant)
+print(name.as_dict()["provenance"])
 ```
 
-Sample output (`--seed 42`):
+Python and browser share lexical/evidence data and blend scores but use different
+RNGs and transformation rules. Seeds replay within an engine/version, not across
+engines. Word Markov trains on individual quotes by default; add `--corpus PATH`
+for Folger XML or line-oriented plain text. Supplemental corpora train the model
+but do not silently extend the committed source-evidence index.
 
-```
-varletempire1415     # varlet + empire + 1415
-quartArgumentChivalry1415   # word-markov: quart argument chivalry
-drawerstandard1616   # drawer + standard
-trueneverlove1485    # "The course of true love never did run smooth" (A Midsummer Night's Dream)
-flapdragonwork1588   # flapdragon + work + 1588
-```
+## Corpus and R / RStudio workflow
 
-## Data sources & acknowledgements
-
-All corpora are public-domain or open data, fetched on demand by
-`python -m nickspeare data` (cached under `.cache/corpus`, git-ignored):
-
-* **Project Gutenberg** — *The Complete Works of William Shakespeare* (#100),
-  plain text UTF-8. <https://www.gutenberg.org/ebooks/100>
-* **tiny Shakespeare** — Andrej Karpathy's 40k-line training set used in
-  *"The Unreasonable Effectiveness of Recurrent Neural Networks"*.
-  <https://github.com/karpathy/char-rnn/blob/master/data/tinyshakespeare/input.txt>
-* **Folger Shakespeare Digital Texts** — TEI Simple XML, the annotated
-  (character-attributed) database used for feature extraction.
-  <https://folgerdigitaltexts.org/download/xml.html>
-* **Hyperbard** — an NLP/graph database of the plays built on Folger,
-  standing in for the "hisent" NLP resource named in the brief.
-  <https://github.com/hyperbard/hyperbard>
-
-The two generation engines are direct homages to:
-
-* **devjason/markov_poem** — word-level Markov poem generation over the
-  sonnets. <https://github.com/devjason/markov_poem>
-* **Rickmsd/namemaker** — character-level Markov name generation.
-  <https://github.com/Rickmsd/namemaker>
-
-## R-assisted feature extraction
-
-The brief calls for using **R** to pull play-feature words (Henry IV/V tavern
-rogues, Agincourt royalty, high-frequency archaic connectives).  Because R is
-not always installed, the Python pipeline is the default
-(`scripts/build_features.py`) and its output is committed under
-`nickspeare/data/features/`.  The equivalent R implementation lives at
-`R/extract_features.R`:
-
-```bash
-install.packages(c("xml2", "jsonlite"))
-Rscript R/extract_features.R
+```sh
+python -m nickspeare data
+python scripts/build_features.py
+python scripts/build_atlas.py
 ```
 
-Both produce `{tavern,kings,archaic}.json`, which `Lexicon` merges into the
-runtime word library.
+This rebuilds features and the identical Python/browser atlas from cached Folger
+XML for `1H4`, `2H4`, `H5`. Full texts stay in ignored `.cache/`. The source manifest
+pins input bytes with SHA-256. Missing source files fail the build.
 
-## Project layout
+In RStudio run `source("R/setup.R")` to install missing `xml2` and `jsonlite`
+packages. Then run from a terminal:
 
-```
-nickspeare/
-  cli.py          command-line interface
-  corpus.py       tokenizer + CharMarkov + WordMarkov + Folger TEI parser
-  lexicon.py      classified word library (curated seeds)
-  phonetics.py    blending, syllabification, truncation, deformation
-  combinators.py  fusion rules (rogue_to_king, quote_splice, ...)
-  suffixes.py     historical-year / numeric suffix
-  generator.py    the five-stage pipeline
-  data/           committed feature files (tavern/kings/archaic)
-  data.py         corpus downloader
-R/extract_features.R   R feature-extraction pass
-scripts/build_features.py  Python feature-extraction pass
-scripts/fetch_corpus.py    corpus downloader entrypoint
-tests/              unittest suite (run with `python -m unittest`)
-docs/                GitHub Pages site source (docs/index.html)
+```sh
+Rscript R/extract_features.R --out work/r-features
 ```
 
-## License
+The R pass uses shared exclusions and speaker cohorts and the same smoothed
+log-odds formula for characteristic words. Its exploratory outputs are kept
+separate from the published atlas. The Python atlas builder adds evidence records
+and source hashes. R is optional for nickname generation.
 
-**GNU Affero General Public License v3.0 or later** — see [LICENSE](LICENSE).
+## Development
 
-The generated nicknames are not copyrightable by this project; the underlying
-Shakespeare texts are public domain.  Nickspeare itself is AGPL-3.0-or-later.
+```sh
+python -m pip install -e '.[dev]'
+python -m unittest discover -s tests -v
+npm test
+python -m build
+```
+
+Serve the site with `python -m http.server 8765 --directory docs`. After
+`python -m playwright install chromium`, run `python scripts/check_browser.py`
+in another terminal. CI runs Python 3.9/3.12/3.14 and headless browser checks.
+GitHub Pages publishes `main:/docs`.
+
+## Project map
+
+| Path | Responsibility |
+| --- | --- |
+| `nickspeare/generator.py` | Generation, suffixes and structured records |
+| `nickspeare/corpus.py` | Markov engines and TEI parsing |
+| `nickspeare/provenance.py` | Evidence lookup, blend ranking, date explanation |
+| `nickspeare/data/provenance.json` | Packaged evidence atlas |
+| `scripts/build_atlas.py` | Reproducible source evidence build |
+| `R/` | RStudio dependency setup and extraction |
+| `docs/` | Static Pages UI, browser engine and shared atlas |
+| `tests/` | Python and JavaScript regression tests |
+
+## License and acknowledgements
+
+Code: **AGPL-3.0-or-later**, see [LICENSE](LICENSE). The cached Folger edition and
+its derived data retain **CC BY-NC 3.0** attribution and restrictions; they are
+not relicensed by the code license. See [DATA_SOURCES.md](DATA_SOURCES.md).
+
+Thanks to the Folger Shakespeare Library and its editors/encoders. Optional
+corpora include Project Gutenberg and Karpathy’s tiny Shakespeare. Markov
+techniques are inspired by [markov_poem](https://github.com/devjason/markov_poem)
+and [namemaker](https://github.com/Rickmsd/namemaker).
