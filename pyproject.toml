@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nickspeare"
+version = "1.0.0"
+description = "Shakespearean nickname generator: from tavern rogue to Agincourt king."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "styayur" }]
+keywords = ["shakespeare", "nickname", "markov", "name-generator", "folger"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+nickspeare = "nickspeare.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["nickspeare*"]
+
+[tool.setuptools.package-data]
+nickspeare = ["data/*.json", "data/features/*.json"]

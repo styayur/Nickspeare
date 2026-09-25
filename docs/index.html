@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nickspeare — Shakespearean nickname generator</title>
+<meta name="description" content="Generate Shakespearean nicknames: from tavern rogue to Agincourt king.">
+<style>
+  :root {
+    --bg: #14100d;
+    --panel: #1e1712;
+    --panel-2: #281d16;
+    --ink: #ece1d1;
+    --muted: #b7a78f;
+    --gold: #c9a227;
+    --crimson: #9d3b2f;
+    --line: #3a2d20;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: radial-gradient(ellipse at 50% -20%, #2a1f16 0%, var(--bg) 55%);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 48px 24px 80px; }
+  header { text-align: center; margin-bottom: 28px; }
+  .kicker { letter-spacing: .32em; text-transform: uppercase; color: var(--crimson); font-size: 13px; }
+  h1 { font-size: clamp(44px, 9vw, 92px); margin: 10px 0 0; font-weight: 400; letter-spacing: -.01em; }
+  h1 .amp { color: var(--gold); font-style: italic; }
+  .subtitle { color: var(--muted); font-style: italic; font-size: 19px; margin-top: 6px; }
+  .rule { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 22px auto; padding: 10px 0; color: var(--gold); font-style: italic; }
+  .stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 26px 0; }
+  .stage div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .stage b { display: block; color: var(--gold); font-weight: 400; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+  .stage span { color: var(--muted); font-size: 14px; }
+  .controls { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 130px; flex: 1; }
+  label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  select, input { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-family: inherit; font-size: 15px; }
+  button.big { background: linear-gradient(180deg, #b9871f, var(--crimson)); color: #fff8e8; border: none; border-radius: 10px; padding: 13px 22px; font-size: 17px; cursor: pointer; letter-spacing: .04em; font-family: inherit; }
+  button.big:hover { filter: brightness(1.08); }
+  .out { margin-top: 26px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
+  .card .name { font-size: 24px; color: var(--ink); word-break: break-all; }
+  .card .tag { color: var(--gold); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+  .card .why { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 4px; }
+  footer { margin-top: 44px; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 22px; }
+  a { color: var(--gold); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">William Shakespeare · corpus generator</div>
+    <h1>Nick<span class="amp">speare</span></h1>
+    <p class="subtitle">From tavern rogue to Agincourt king.</p>
+    <div class="rule">“We few, we happy few, we band of brothers.” — Henry V</div>
+  </header>
+
+  <section class="stage" aria-label="pipeline">
+    <div><b>词库分类</b><span>tavern · kingly · archaic · quotes</span></div>
+    <div><b>文本抽取</b><span>Gutenberg · tiny-shakespeare · Folger</span></div>
+    <div><b>逻辑组合</b><span>rogue → king semantic fusion</span></div>
+    <div><b>音韵融合</b><span>blend · truncate · deform</span></div>
+    <div><b>数字加缀</b><span>1415 · 1564 · 1599 · 1616</span></div>
+  </section>
+
+  <section class="controls">
+    <div class="row">
+      <div class="field">
+        <label for="rule">Rule</label>
+        <select id="rule">
+          <option value="all">All rules</option>
+          <option value="rogue_to_king">rogue → king</option>
+          <option value="quote_splice">quote splice</option>
+          <option value="archaic_coinage">archaic coinage</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="style">Style</label>
+        <select id="style">
+          <option value="camel">camelCase</option>
+          <option value="lower">lowercase</option>
+          <option value="title">Title Case</option>
+          <option value="snake">snake_case</option>
+          <option value="kebab">kebab-case</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="suffix">Suffix</label>
+        <select id="suffix">
+          <option value="year">historical year</option>
+          <option value="number">number</option>
+          <option value="both">year / number</option>
+          <option value="none">none</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="count">Count</label>
+        <input id="count" type="number" min="1" max="50" value="12">
+      </div>
+      <button class="big" id="go">Generate</button>
+    </div>
+  </section>
+
+  <section class="out" id="out"></section>
+
+  <footer>
+    <p>Nickspeare is AGPL-3.0-or-later · full Python engine on
+    <a href="https://github.com/styayur/Nickspeare">GitHub</a> ·
+    data from Gutenberg, Karpathy's tiny Shakespeare, and the Folger Digital Texts.</p>
+    <p>Inspired by <a href="https://github.com/devjason/markov_poem">devjason/markov_poem</a>
+    and <a href="https://github.com/Rickmsd/namemaker">Rickmsd/namemaker</a>.</p>
+  </footer>
+</div>
+
+<script>
+const TAVERN = ["sack","canakin","tapster","varlet","rogue","knave","rascal","wassail","tavern","ale","boar","drawer","harlotry","lewdster","reveller","ruffian","miscreant","cozener","pickpurse","flapdragon","bombard","quart","pottle","halfpenny","dudgeon","cudgel","riot","revel","humour","belly","docket","counterfeit","roguery","brawler","ribald"];
+const KINGS = ["agincourt","harfleur","crispin","crispian","saint","honour","valour","crown","majesty","heraldry","england","harry","monmouth","leek","banner","battle","triumph","conquest","sovereign","royal","sceptre","throne","gallant","king","glory","victory","sword","standard","horseman","archer","warrior","chivalry","armour","regiment","command","empire","realm","diadem"];
+const ARCHAIC = ["thou","thee","thy","thine","ye","anon","prithee","forsooth","perchance","wherefore","alack","alas","hark","whence","betwixt","ere","dost","doth","hath","shalt","wilt","art","ay","nay","sirrah","zounds","marry","beshrew","gramercy","sooth"];
+const AFFIXES = ["eth","est","ly","er","es","ion","age","ing","ous","al","ance","ent","ess"];
+const YEARS = {"agincourt":"1415","harfleur":"1415","st_crispin":"1415","globe":"1599","shakespeare_born":"1564","shakespeare_died":"1616","hamlet":"1601","macbeth":"1606","first_folio":"1623","hastings":"1066","bosworth":"1485"};
+const QUOTES = [
+  {t:"Once more unto the breach, dear friends, once more", p:"Henry V"},
+  {t:"We few, we happy few, we band of brothers", p:"Henry V"},
+  {t:"Cry God for Harry, England, and Saint George", p:"Henry V"},
+  {t:"To be, or not to be, that is the question", p:"Hamlet"},
+  {t:"All the world's a stage", p:"As You Like It"},
+  {t:"Parting is such sweet sorrow", p:"Romeo and Juliet"},
+  {t:"A horse, a horse, my kingdom for a horse", p:"Richard III"},
+  {t:"Something wicked this way comes", p:"Macbeth"},
+  {t:"Uneasy lies the head that wears a crown", p:"Henry IV, Part 2"},
+  {t:"A rose by any other name would smell as sweet", p:"Romeo and Juliet"},
+  {t:"Now is the winter of our discontent", p:"Richard III"},
+  {t:"O brave new world, that has such people in it", p:"The Tempest"}
+];
+const STOP = new Set(["the","a","an","of","to","and","or","in","on","is","be","are","was","were","not","that","this","these","those","with","for","from","my","our","your","their","his","her","i","you","we","he","she","it","they","o","out","all","such","by","as","if","but","so","nor","than","then","when","what","where","why","how","shall","will","would","could","should","may","might","have","has","had","do","does","did","no","yes","into","upon"]);
+
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const stem = w => w.toLowerCase().replace(/[^a-z]/g, "");
+const vowels = c => "aeiouy".includes(c);
+function blend(a,b){
+  a=stem(a); b=stem(b); if(!a)return b; if(!b)return a;
+  const lim=Math.min(a.length,b.length);
+  for(let n=lim;n>1;n--){ if(a.slice(-n)===b.slice(0,n)) return a+b.slice(n); }
+  return a+b;
+}
+function syllabicBlend(a,b){
+  a=stem(a); b=stem(b); if(!a||!b)return a+b;
+  const d=blend(a,b); if(d!==a+b)return d;
+  let i=a.length; while(i>0 && !vowels(a[i-1])) i--;
+  if(i>0 && i<a.length) return a.slice(0,i-1)+b;
+  return a+b;
+}
+function truncate(w,k,affix=""){ w=stem(w); return w.slice(0,k)+affix; }
+function deform(w){
+  w=stem(w); const forms=[];
+  for(let i=1;i<w.length;i++){ const c=w[i]; if(!vowels(c) && c!=="x" && c!=="y") forms.push(w.slice(0,i)+c+w.slice(i)); }
+  if(w.endsWith("e")) forms.push(w.slice(0,-1));
+  if(w.endsWith("s")) forms.push(w.slice(0,-1)+"z");
+  return forms.length? pick(forms) : w;
+}
+function yearSuffix(){ const k=Object.keys(YEARS); return YEARS[k[Math.floor(Math.random()*k.length)]]; }
+function numSuffix(d){ const lo=10**(d-1), hi=10**d-1; return String(Math.floor(Math.random()*(hi-lo+1))+lo); }
+
+function contentWords(q){
+  return q.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g).filter(w=>!STOP.has(w)&&w.length>=4);
+}
+
+function rogueToKing(){
+  const a=pick(TAVERN), b=pick(KINGS);
+  const core=Math.random()<0.5? blend(a,b):syllabicBlend(a,b);
+  const y=Math.random()<0.6? yearSuffix():"";
+  return {core:core+y, parts:[a,b], kind:"rogue_to_king", why:`${a} + ${b}${y?" + "+y:""}`};
+}
+function quoteSplice(){
+  const q=pick(QUOTES);
+  const ws=contentWords(q.t);
+  const picks=ws.sort(()=>Math.random()-0.5).slice(0,Math.min(3,ws.length));
+  let core=picks[0]||"";
+  for(let i=1;i<picks.length;i++) core=blend(core,picks[i]);
+  if(picks.length===1) core=truncate(picks[0], 5+Math.floor(Math.random()*4));
+  return {core, parts:picks, kind:"quote_splice", why:`“${q.t}” (${q.p})`};
+}
+function archaicCoinage(){
+  const base=pick(ARCHAIC), affix=pick(AFFIXES);
+  const r=Math.random();
+  let core;
+  if(r<0.34) core=truncate(base, Math.max(2, base.length-1), affix);
+  else if(r<0.67) core=deform(base);
+  else core=base+affix;
+  return {core, parts:[base], kind:"archaic_coinage", why:`${base} → ${core}`};
+}
+function generateOne(rule, style, suffix){
+  let f = rule==="rogue_to_king"? rogueToKing() : rule==="quote_splice"? quoteSplice() : rule==="archaic_coinage"? archaicCoinage() : pick([rogueToKing,quoteSplice,archaicCoinage])();
+  let core=f.core, applied="";
+  if(suffix!=="none" && !/\d$/.test(core)){
+    applied = suffix==="year"? yearSuffix() : suffix==="number"? numSuffix(2+Math.floor(Math.random()*3)) : (Math.random()<0.5? yearSuffix():numSuffix(2+Math.floor(Math.random()*3)));
+    core=core+applied;
+  }
+  return {variant: styleWord(core,style), ...f, suffix:applied};
+}
+function styleWord(core,style){
+  core=core.trim();
+  if(style==="lower")return core.toLowerCase();
+  if(style==="title"){ return core.split(/[\s_\-]+/).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" "); }
+  if(style==="snake")return core.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+  if(style==="kebab")return core.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const chunks=core.split(/[\s_\-]+/); let out="";
+  chunks.forEach(ch=>{ const pieces=ch.match(/[A-Za-z]+|[0-9]+/g)||[ch]; pieces.forEach((p,i2)=>{ if(/^\d+$/.test(p))out+=p; else out+= (i2===0&&out==="")? p.charAt(0).toLowerCase()+p.slice(1) : p.charAt(0).toUpperCase()+p.slice(1).toLowerCase(); }); });
+  return out;
+}
+
+const out=document.getElementById("out");
+document.getElementById("go").addEventListener("click",()=>{
+  const rule=document.getElementById("rule").value;
+  const style=document.getElementById("style").value;
+  const suffix=document.getElementById("suffix").value;
+  const count=Math.min(50, Math.max(1, parseInt(document.getElementById("count").value||"12",10)));
+  const results=[]; const seen=new Set();
+  while(results.length<count){
+    const n=generateOne(rule,style,suffix);
+    if(seen.has(n.variant))continue; seen.add(n.variant); results.push(n);
+  }
+  out.innerHTML=results.map(n=>`<div class="card"><div><div class="name">${n.variant}</div><div class="why">${n.why}</div></div><span class="tag">${n.kind.replace(/_/g," ")}</span></div>`).join("");
+});
+document.getElementById("go").click();
+</script>
+</body>
+</html>
