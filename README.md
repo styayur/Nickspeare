@@ -6,7 +6,7 @@
 
 [Open the composing room](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Contributing](CONTRIBUTING.md) · [Source attribution](DATA_SOURCES.md)
 
-把 Eastcheap 的酒馆词汇与 Agincourt 的王权意象融合成网名。每个名字都可以追溯原词、人物、剧目、语义阵营、融合步骤与年代含义；生成词本身始终标明为新造词。
+Fuse the tavern vernacular of Eastcheap with the royal iconography of Agincourt to construct a series of online handles. Each name must be fully parsed: tracing its constituent roots, character ties, Shakespearean plays, semantic registers, morphological synthesis, and period connotations, while explicitly designating the generated term as a neologism.
 
 ```text
 sack + agincourt → sackagincourt → Sackagincourt1415
