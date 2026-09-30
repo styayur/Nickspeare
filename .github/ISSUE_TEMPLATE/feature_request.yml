@@ -1,0 +1,42 @@
+name: Corpus or feature proposal
+description: Propose a new play, source corpus, algorithm, or browser workflow.
+title: '[Feature]: '
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Add or replace a play/corpus
+        - Generation rule or provenance
+        - Browser interface
+        - Rebuild or validation tooling
+        - Packaging or documentation
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Research or user problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source and rights
+      description: Provide source URL, edition, stable identifier, license/copyright status, and redistribution constraints.
+    validations:
+      required: true
+  - type: textarea
+    id: methodology
+    attributes:
+      label: Method and limitation impact
+      description: Explain speaker cohorts, exclusions, hashes, bias, chronological interpretation, and acceptance tests.
+    validations:
+      required: true

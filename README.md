@@ -101,6 +101,11 @@ log-odds formula for characteristic words. Its exploratory outputs are kept
 separate from the published atlas. The Python atlas builder adds evidence records
 and source hashes. R is optional for nickname generation.
 
+## Extending the corpus
+
+Adding a play is an explicit public workflow, not an undocumented edit to JSON. The current three-play atlas, 195 indexed words, source rights, hashes, exclusions, rebuild commands, and acceptance rules are documented in
+[docs/corpus-extension.md](docs/corpus-extension.md). Full source texts remain ignored; only reviewed evidence and generated atlas data may be committed.
+
 ## Development
 
 ```sh
@@ -138,3 +143,12 @@ Thanks to the Folger Shakespeare Library and its editors/encoders. Optional
 corpora include Project Gutenberg and Karpathy’s tiny Shakespeare. Markov
 techniques are inspired by [markov_poem](https://github.com/devjason/markov_poem)
 and [namemaker](https://github.com/Rickmsd/namemaker).
+
+## Community and governance
+
+- GitHub Issues: reproducible bugs and scoped feature proposals.
+- GitHub Discussions: not enabled; use Discord for design discussions and early feedback for now.
+- Discord: [join the community](https://discord.gg/wA2xy6VPK) for informal discussion and feedback. It is not an SLA support channel.
+- Security: follow [SECURITY.md](SECURITY.md); do not open a public issue for a vulnerability.
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
+- Releases use `vX.Y.Z` tags and publish verified Python distributions with `SHA256SUMS.txt`; maintainers perform releases.

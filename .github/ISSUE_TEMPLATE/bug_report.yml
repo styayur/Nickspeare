@@ -1,0 +1,63 @@
+name: Bug report
+description: Report a reproducible Nickspeare generation, browser, or corpus problem.
+title: '[Bug]: '
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v1.1.0 / main @ 2026-10-01
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and Python/browser version
+      placeholder: Windows 11; Python 3.14 / Chrome 141
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Rule, seed, and command
+      description: Include the rule, seed, suffix, and engine if relevant.
+      placeholder: rule=markov_epithet seed=42 suffix=none
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs, exported JSON, or screenshots
+      description: Remove private data before posting. Do not paste copyrighted corpus text you do not have the right to share.
+      render: text
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy and corpus check
+      options:
+        - label: I removed private data and did not include unreviewed copyrighted source text.
+          required: true
+        - label: I understand generated names are new coinages, not attested quotations.
+          required: true
+        - label: This is not a security vulnerability. I will follow SECURITY.md for security reports.
+          required: true
