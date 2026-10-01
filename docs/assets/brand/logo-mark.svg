@@ -1,0 +1,5 @@
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nickspeare">
+  <rect width="96" height="96" rx="20" fill="#0f172a"/>
+  <rect x="3.5" y="3.5" width="89" height="89" rx="17.5" fill="none" stroke="#eab308" stroke-width="3"/>
+  <path d="M26 70 C22 48 34 30 54 22 C58 36 52 50 38 58 C48 54 58 46 64 34 C70 46 62 62 48 70 Z" fill="none" stroke="#eab308" stroke-width="4" stroke-linejoin="round"/><path d="M36 44 L52 34" stroke="#eab308" stroke-width="3"/><path d="M28 72 H68" stroke="#eab308" stroke-width="4" stroke-linecap="round"/>
+</svg>
