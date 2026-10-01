@@ -6,6 +6,8 @@
 
 **Shakespearean nickname generation with source-grounded provenance.**
 
+**Status:** 🔵 Research
+
 [Live Demo](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Source Data](DATA_SOURCES.md) · [Contributing](CONTRIBUTING.md)
 
 [![CI](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
@@ -13,6 +15,8 @@
 [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)]()
 [![NLP](https://img.shields.io/badge/NLP-4F46E5)]()
 [![digital humanities](https://img.shields.io/badge/digital%20humanities-7C2D12)]()
+
+![Nickspeare composing room](docs/screenshot.png)
 
 </div>
 
@@ -153,6 +157,24 @@ Thanks to the Folger Shakespeare Library and its editors/encoders. Optional
 corpora include Project Gutenberg and Karpathy’s tiny Shakespeare. Markov
 techniques are inspired by [markov_poem](https://github.com/devjason/markov_poem)
 and [namemaker](https://github.com/Rickmsd/namemaker).
+
+## Roadmap
+
+### Current
+
+- Source-grounded nickname generation with per-name provenance on the web demo.
+
+### Next
+
+- Extend the corpus and improve the evidence/provenance UI.
+
+### Future
+
+- More computational-humanities experiments and comparative provenance views.
+
+### Not planned
+
+- Ungrounded generation or commercial name services.
 
 ## Community and governance
 
