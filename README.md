@@ -11,7 +11,7 @@
 [Live Demo](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Source Data](DATA_SOURCES.md) · [Contributing](CONTRIBUTING.md)
 
 [![CI](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
-[![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
+[![license: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)]()
 [![NLP](https://img.shields.io/badge/NLP-4F46E5)]()
 [![digital humanities](https://img.shields.io/badge/digital%20humanities-7C2D12)]()
