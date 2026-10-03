@@ -1,0 +1,14 @@
+[commands.lint]
+program = "python"
+args = ["-m", "nickspeare", "generate", "--rule", "markov_epithet", "--seed", "42", "--json"]
+timeout_secs = 300
+
+[commands.test]
+program = "python"
+args = ["-m", "unittest", "discover", "-s", "tests", "-v"]
+timeout_secs = 600
+
+[commands.build]
+program = "python"
+args = ["-m", "build"]
+timeout_secs = 600
