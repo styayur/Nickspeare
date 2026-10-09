@@ -1,7 +1,3 @@
-<div align="center">
-
-<img src="docs/assets/brand/logo-mark.svg" width="84" alt="Nickspeare logo" />
-
 # Nickspeare
 
 **Shakespearean nickname generation with source-grounded provenance.**
@@ -12,13 +8,9 @@
 
 [![CI](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
 [![license: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)]()
-[![NLP](https://img.shields.io/badge/NLP-4F46E5)]()
-[![digital humanities](https://img.shields.io/badge/digital%20humanities-7C2D12)]()
 
 ![Nickspeare composing room](docs/screenshot.png)
 
-</div>
 
 Fuse the tavern vernacular of Eastcheap with the royal iconography of Agincourt to construct a series of online handles. Each name must be fully parsed: tracing its constituent roots, character ties, Shakespearean plays, semantic registers, morphological synthesis, and period connotations, while explicitly designating the generated term as a neologism.
 
