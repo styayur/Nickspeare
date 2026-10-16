@@ -1,12 +1,18 @@
 # Nickspeare
 
-[![Verify](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
+**Shakespearean nickname generation with source-grounded provenance.**
 
-**Shakespearean nickname generator — from Eastcheap rogue to Agincourt king.**
+**Status:** 🔵 Research
 
-[Open the composing room](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Contributing](CONTRIBUTING.md) · [Source attribution](DATA_SOURCES.md)
+[Live Demo](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Source Data](DATA_SOURCES.md) · [Contributing](CONTRIBUTING.md)
 
-把 Eastcheap 的酒馆词汇与 Agincourt 的王权意象融合成网名。每个名字都可以追溯原词、人物、剧目、语义阵营、融合步骤与年代含义；生成词本身始终标明为新造词。
+[![CI](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
+[![license: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue)](LICENSE)
+
+![Nickspeare composing room](docs/screenshot.png)
+
+
+Fuse the tavern vernacular of Eastcheap with the royal iconography of Agincourt to construct a series of online handles. Each name must be fully parsed: tracing its constituent roots, character ties, Shakespearean plays, semantic registers, morphological synthesis, and period connotations, while explicitly designating the generated term as a neologism.
 
 ```text
 sack + agincourt → sackagincourt → Sackagincourt1415
@@ -143,6 +149,24 @@ Thanks to the Folger Shakespeare Library and its editors/encoders. Optional
 corpora include Project Gutenberg and Karpathy’s tiny Shakespeare. Markov
 techniques are inspired by [markov_poem](https://github.com/devjason/markov_poem)
 and [namemaker](https://github.com/Rickmsd/namemaker).
+
+## Roadmap
+
+### Current
+
+- Source-grounded nickname generation with per-name provenance on the web demo.
+
+### Next
+
+- Extend the corpus and improve the evidence/provenance UI.
+
+### Future
+
+- More computational-humanities experiments and comparative provenance views.
+
+### Not planned
+
+- Ungrounded generation or commercial name services.
 
 ## Community and governance
 
