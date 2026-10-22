@@ -1,72 +1,52 @@
 # Nickspeare
 
-**Shakespearean nickname generation with source-grounded provenance.**
+A Shakespearean nickname generator with source-linked provenance and a browser composing room.
 
-**Status:** Experimental research project. Python and browser workflows have automated checks; independent installation, upgrade and sustained user validation have not been audited.
+[简体中文](README.zh-CN.md) · [Live demo](https://styayur.github.io/Nickspeare/) · [Published v1.0.0](https://github.com/styayur/Nickspeare/releases/tag/v1.0.0)
 
-[Live Demo](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Source Data](DATA_SOURCES.md) · [Contributing](CONTRIBUTING.md)
+**Stage: Experimental.** Python and browser workflows have automated checks; independent installation, upgrade and sustained user validation remain outstanding. Current source declares 1.1.0; the latest published release is v1.0.0. Source examples below describe the current source, not a promise about the older wheel.
 
-[![CI](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
-[![license: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue)](LICENSE)
+![Running browser composing room with a generated name, generation controls and corpus coverage](docs/screenshot.png)
 
-![Nickspeare composing room](docs/screenshot.png)
+## Features
 
+- Generate invented names from Shakespearean ingredients and inspect speaker ties, source locations, formation choices and historical date explanations.
+- The current evidence atlas indexes 195 words from *Henry IV, Part 1*, *Henry IV, Part 2* and *Henry V*, with source hashes and XML identifiers.
+- Compare ranked blends and character Markov candidates. Seeded records make runs replayable within one engine/version.
+- The browser runs locally without a generation API or key. Inspect the four-stage formation, select alternatives, share replay settings and export JSON.
 
-Fuse the tavern vernacular of Eastcheap with the royal iconography of Agincourt to construct a series of online handles. Each name must be fully parsed: tracing its constituent roots, character ties, Shakespearean plays, semantic registers, morphological synthesis, and period connotations, while explicitly designating the generated term as a neologism.
+Evidence attests the ingredients, not the invented name. The scoring and editorial choices are explained in [Methodology](docs/METHODOLOGY.md).
 
-```text
-sack + agincourt → sackagincourt → Sackagincourt1415
+## Installation / Quick Start
+
+### Browser
+
+Open the [live demo](https://styayur.github.io/Nickspeare/) and choose **FORGE NAME**. Inspect the paper trail and formation steps before copying a name or exporting its record. To serve the same static UI locally, clone the repository and run from its root:
+
+```sh
+git clone https://github.com/styayur/Nickspeare.git
+cd Nickspeare
+python -m http.server 8765 --directory docs
 ```
 
-The browser is an Early Modern composing room: classical serif text, monospace
-parameters and provenance, paper white, black ink and dark red. Use **FORGE NAME**,
-inspect the paper trail, follow the four-stage formation, and export a JSON record.
-Replay links preserve the settings and selected impression. Everything runs locally
-in the browser; there is no generation API or API key.
+Open `http://localhost:8765`. Python serves the files; nickname generation runs in the browser. The packaged atlas is included, so a corpus download is not needed for ordinary generation.
 
-## What is inside
+The browser keeps the current results in memory, without a saved-history store. Export JSON to keep a record; replay links expose the rule, style, suffix, seed, affinity and selected impression in their URL. They are not private backups. Exported JSON is a record, not an importable project file; replay is tied to the browser engine/version.
 
-- **Source evidence:** 195 indexed words in the current three-play atlas, with
-  speaker identities, printed line labels, speech/word XML IDs and source hashes.
-- **Semantic affiliation:** add-half smoothed log odds contrast selected tavern
-  and royal speaker groups. Royal affinity controls weighted ingredient selection.
-- **Ranked fusion:** compare overlap, concatenation and vowel-group cuts using
-  explicit retention, consonant-cluster and length scores; inspect alternatives.
-- **Character Markov:** order-three conditional generation with real prefix
-  conditioning. Browser records include transitions, probabilities and fallbacks.
-- **Chronology:** distinguish story history, biography, composition context and
-  publication; 1413 is coronation, 1415 is Agincourt, 1623 is the First Folio.
-- **Reproducibility:** seeded generation, structured provenance, Python/Node tests,
-  browser integration checks, source manifests and a documented rebuild process.
+### Python from source
 
-This is a literary experiment, not a historical pronunciation model. Speaker groups
-are editorial interpretations; rare-word associations are uncertain. Evidence attests
-an ingredient, not the invented name. See [methodology](docs/METHODOLOGY.md).
-
-## Install
-
-Python 3.9+; no third-party runtime packages.
+Use Python 3.9+; there are no third-party runtime dependencies. A virtual environment is recommended.
 
 ```sh
 git clone https://github.com/styayur/Nickspeare.git
 cd Nickspeare
 python -m pip install -e .
-```
-
-## Generate
-
-```sh
 python -m nickspeare generate -n 10 --seed 42
-python -m nickspeare generate -n 5 --rule rogue_to_king --style title --year-theme agincourt --royal-affinity 0.85 --json
+python -m nickspeare generate -n 5 --rule rogue_to_king --year-theme agincourt --royal-affinity 0.85 --json
 python -m nickspeare generate -n 5 --rule markov_coin --suffix none --seed 42
-python -m nickspeare generate -n 5 --rule markov_epithet --seed 42
 ```
 
-Python offers `rogue_to_king`, `quote_splice`, `archaic_coinage`, `markov_coin`
-and `markov_epithet`. Browser offers the first four. `--suffix none` never adds
-a year; `number` denotes a nonhistorical ornament; `both` randomly chooses a
-historical or numeric suffix. Styles: `lower`, `camel`, `title`, `snake`, `kebab`,
-`upper`. Separators transform existing phrase boundaries, not guessed compound roots.
+Python offers `rogue_to_king`, `quote_splice`, `archaic_coinage`, `markov_coin` and `markov_epithet`; the browser offers the first four. `--suffix none` adds no year, `number` adds a nonhistorical ornament, and `both` chooses a historical or numeric suffix. Run `python -m nickspeare generate --help` for styles and other options.
 
 ```python
 from nickspeare import NicknameGenerator
@@ -77,42 +57,19 @@ print(name.variant)
 print(name.as_dict()["provenance"])
 ```
 
-Python and browser share lexical/evidence data and blend scores but use different
-RNGs and transformation rules. Seeds replay within an engine/version, not across
-engines. Word Markov trains on individual quotes by default; add `--corpus PATH`
-for Folger XML or line-oriented plain text. Supplemental corpora train the model
-but do not silently extend the committed source-evidence index.
+For a fixed published package, download the wheel attached to [v1.0.0](https://github.com/styayur/Nickspeare/releases/tag/v1.0.0) and install that local file. No PyPI availability or 1.1.0 release is implied. Corpus rebuilding and optional R/RStudio analysis are covered in [Development](docs/DEVELOPMENT.md).
 
-## Corpus and R / RStudio workflow
+From the download directory, in a separate virtual environment from the editable source install:
 
 ```sh
-python -m nickspeare data
-python scripts/build_features.py
-python scripts/build_atlas.py
+python -m pip install ./nickspeare-1.0.0-py3-none-any.whl
 ```
 
-This rebuilds features and the identical Python/browser atlas from cached Folger
-XML for `1H4`, `2H4`, `H5`. Full texts stay in ignored `.cache/`. The source manifest
-pins input bytes with SHA-256. Missing source files fail the build.
+## Testing / CI / Platform Support
 
-In RStudio run `source("R/setup.R")` to install missing `xml2` and `jsonlite`
-packages. Then run from a terminal:
+[![Verify](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/styayur/Nickspeare/actions/workflows/ci.yml)
 
-```sh
-Rscript R/extract_features.R --out work/r-features
-```
-
-The R pass uses shared exclusions and speaker cohorts and the same smoothed
-log-odds formula for characteristic words. Its exploratory outputs are kept
-separate from the published atlas. The Python atlas builder adds evidence records
-and source hashes. R is optional for nickname generation.
-
-## Extending the corpus
-
-Adding a play is an explicit public workflow, not an undocumented edit to JSON. The current three-play atlas, 195 indexed words, source rights, hashes, exclusions, rebuild commands, and acceptance rules are documented in
-[docs/corpus-extension.md](docs/corpus-extension.md). Full source texts remain ignored; only reviewed evidence and generated atlas data may be committed.
-
-## Development
+From the repository root, use Python 3.9+ and Node.js 22 (CI; the manifest allows Node 20+):
 
 ```sh
 python -m pip install -e '.[dev]'
@@ -121,58 +78,25 @@ npm test
 python -m build
 ```
 
-Serve the site with `python -m http.server 8765 --directory docs`. After
-`python -m playwright install chromium`, run `python scripts/check_browser.py`
-in another terminal. CI runs Python 3.9/3.12/3.14 and headless browser checks.
-GitHub Pages publishes `main:/docs`.
+For browser integration, install Chromium with `python -m playwright install chromium`, serve `docs` as above, then run `python scripts/check_browser.py` in a second terminal from the repository root.
 
-## Project map
+The [Verify workflow](.github/workflows/ci.yml) tests Python 3.9/3.12/3.14 and headless Chromium on Ubuntu, including replay, export, clipboard, formation steps, responsive layout and load failure. [CodeForge regression](.github/workflows/codeforge-regression.yml) is a separate development gate. These checks do not certify every browser or operating system; GitHub Pages serves `main:/docs`.
 
-| Path | Responsibility |
-| --- | --- |
-| `nickspeare/generator.py` | Generation, suffixes and structured records |
-| `nickspeare/corpus.py` | Markov engines and TEI parsing |
-| `nickspeare/provenance.py` | Evidence lookup, blend ranking, date explanation |
-| `nickspeare/data/provenance.json` | Packaged evidence atlas |
-| `scripts/build_atlas.py` | Reproducible source evidence build |
-| `R/` | RStudio dependency setup and extraction |
-| `docs/` | Static Pages UI, browser engine and shared atlas |
-| `tests/` | Python and JavaScript regression tests |
+## Known Limitations
 
-## License and acknowledgements
-
-Code: **AGPL-3.0-or-later**, see [LICENSE](LICENSE). The cached Folger edition and
-its derived data retain **CC BY-NC 3.0** attribution and restrictions; they are
-not relicensed by the code license. See [DATA_SOURCES.md](DATA_SOURCES.md).
-
-Thanks to the Folger Shakespeare Library and its editors/encoders. Optional
-corpora include Project Gutenberg and Karpathy’s tiny Shakespeare. Markov
-techniques are inspired by [markov_poem](https://github.com/devjason/markov_poem)
-and [namemaker](https://github.com/Rickmsd/namemaker).
+- Generated names are neologisms, not Shakespeare quotations or historical pronunciation reconstructions. Speaker groups are editorial interpretations, and rare-word associations remain uncertain.
+- Python and browser use different RNGs and transformation rules. Seeds replay within an engine/version, not across engines.
+- The provenance atlas covers three plays and 195 words. Supplemental training corpora do not automatically extend the committed evidence index.
+- R is optional analysis tooling; its exploratory output is not the published evidence atlas. Independent installation, upgrade and sustained user acceptance have not been audited.
 
 ## Roadmap
 
-### Current
+Current source already provides generation and per-name provenance. Next work is a reviewed corpus extension and clearer evidence views; broader computational-humanities comparisons remain future experiments. See the [corpus acceptance workflow](docs/corpus-extension.md). Ungrounded generation and commercial name services are not planned.
 
-- Source-grounded nickname generation with per-name provenance on the web demo.
+## Contributing
 
-### Next
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and [Development](docs/DEVELOPMENT.md). Bug reports should include the engine/version, seed, rule, suffix and exported record. Use [Issues](https://github.com/styayur/Nickspeare/issues) for reproducible bugs and [SECURITY.md](SECURITY.md) for vulnerabilities. New corpus evidence needs reviewed hashes and attribution.
 
-- Extend the corpus and improve the evidence/provenance UI.
+## License
 
-### Future
-
-- More computational-humanities experiments and comparative provenance views.
-
-### Not planned
-
-- Ungrounded generation or commercial name services.
-
-## Community and governance
-
-- GitHub Issues: reproducible bugs and scoped feature proposals.
-- GitHub Discussions: not enabled; use Discord for design discussions and early feedback for now.
-- Discord: [join the community](https://discord.gg/wA2xy6VPK) for informal discussion and feedback. It is not an SLA support channel.
-- Security: follow [SECURITY.md](SECURITY.md); do not open a public issue for a vulnerability.
-- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
-- Releases use `vX.Y.Z` tags and publish verified Python distributions with `SHA256SUMS.txt`; maintainers perform releases.
+Code is [AGPL-3.0-or-later](LICENSE). The cached Folger edition and its derived atlas retain **CC BY-NC 3.0** attribution and noncommercial restrictions; the code license does not relicense those data. See [Sources and rights](DATA_SOURCES.md) for edition credits, hashes and optional corpora. Thanks to the Folger Shakespeare Library and its editors/encoders; Markov influences are recorded there.
