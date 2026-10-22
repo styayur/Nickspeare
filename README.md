@@ -2,7 +2,7 @@
 
 **Shakespearean nickname generation with source-grounded provenance.**
 
-**Status:** 🔵 Research
+**Status:** Experimental research project. Python and browser workflows have automated checks; independent installation, upgrade and sustained user validation have not been audited.
 
 [Live Demo](https://styayur.github.io/Nickspeare/) · [Methodology](docs/METHODOLOGY.md) · [Source Data](DATA_SOURCES.md) · [Contributing](CONTRIBUTING.md)
 
