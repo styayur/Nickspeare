@@ -37,7 +37,7 @@ jobs:
           trap 'kill "$server"' EXIT
           python -c "import urllib.request,time; time.sleep(2); urllib.request.urlopen('http://127.0.0.1:8765')"
           python scripts/check_browser.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: browser-screenshots
