@@ -20,7 +20,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["build", "playwright"]
+dev = ["build==1.6.1", "playwright==1.63.0"]
 
 [project.urls]
 Homepage = "https://styayur.github.io/Nickspeare/"

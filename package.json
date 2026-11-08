@@ -4,10 +4,13 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=packages/core/**/*.js",
     "sync:core": "node scripts/sync-js-core.mjs",
     "build:extension": "node scripts/build-extension.mjs",
     "build:extension:test": "node scripts/extension-loopback-build.mjs",
-    "test:extension": "npm run build:extension && npm run build:extension:test && python scripts/test_extension.py"
+    "test:extension": "npm run build:extension && npm run build:extension:test && python scripts/test_extension.py",
+    "audit:extension": "python scripts/audit_extension.py",
+    "package:extension": "python scripts/package_extension.py"
   },
   "engines": {
     "node": ">=20"

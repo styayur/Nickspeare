@@ -108,16 +108,16 @@ def other_tab_id(popup, excluded: set[int]) -> int:
     return candidates[-1]
 
 
-def check_popup_and_permission_denial(playwright, browser_name: str, base_url: str, report: dict, screenshots: Path):
+def check_popup_and_permission_denial(playwright, browser_name: str, base_url: str, report: dict, screenshots: Path, extension_root: Path):
     console_errors: list[str] = []
     remote_requests: list[str] = []
     with tempfile.TemporaryDirectory(prefix="nickspeare-popup-") as profile:
-        context = launch_context(playwright, browser_name, profile, EXTENSION)
+        context = launch_context(playwright, browser_name, profile, extension_root)
         try:
             extension_id = wait_for_extension(context)
             mark(report, "extensionLoad", "PASS", context.service_workers[0].url)
 
-            manifest = json.loads(EXTENSION.joinpath("manifest.json").read_text(encoding="utf-8"))
+            manifest = json.loads(extension_root.joinpath("manifest.json").read_text(encoding="utf-8"))
             assert manifest["manifest_version"] == 3
             assert manifest["version"] == "0.1.0"
             assert manifest["version_name"] == "0.1.0-alpha.1"
@@ -135,6 +135,7 @@ def check_popup_and_permission_denial(playwright, browser_name: str, base_url: s
             page.on("request", lambda request: remote_requests.append(request.url) if request.url.startswith(("http://", "https://")) else None)
             page.goto(popup_url(extension_id), wait_until="domcontentloaded")
             page.locator("#candidates .candidate").first.wait_for(timeout=10_000)
+            report["userAgent"] = page.evaluate("navigator.userAgent")
             assert page.locator("#candidates .candidate").count() == 5
             assert "5 names composed locally" in page.locator("#status").inner_text()
             mark(report, "popupGeneration", "PASS", "5 seeded candidates rendered")
@@ -211,10 +212,10 @@ def check_popup_and_permission_denial(playwright, browser_name: str, base_url: s
             context.close()
 
 
-def check_field_insertion(playwright, browser_name: str, base_url: str, report: dict, screenshots: Path):
+def check_field_insertion(playwright, browser_name: str, base_url: str, report: dict, screenshots: Path, test_extension_root: Path):
     popup_errors: list[str] = []
     with tempfile.TemporaryDirectory(prefix="nickspeare-fields-") as profile:
-        context = launch_context(playwright, browser_name, profile, TEST_EXTENSION)
+        context = launch_context(playwright, browser_name, profile, test_extension_root)
         try:
             extension_id = wait_for_extension(context)
             test_page = context.pages[0] if context.pages else context.new_page()
@@ -320,9 +321,9 @@ def check_field_insertion(playwright, browser_name: str, base_url: str, report: 
             context.close()
 
 
-def run(browser_name: str, output: Path) -> dict:
+def run(browser_name: str, output: Path, extension_root: Path, test_extension_root: Path) -> dict:
     report = result_template(browser_name)
-    if not EXTENSION.joinpath("manifest.json").is_file() or not TEST_EXTENSION.joinpath("manifest.json").is_file():
+    if not extension_root.joinpath("manifest.json").is_file() or not test_extension_root.joinpath("manifest.json").is_file():
         report["errors"].append("Extension builds are missing; run npm run build:extension and npm run build:extension:test first")
         return report
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -332,8 +333,8 @@ def run(browser_name: str, output: Path) -> dict:
     try:
         with sync_playwright() as playwright:
             try:
-                check_popup_and_permission_denial(playwright, browser_name, base_url, report, screenshots)
-                check_field_insertion(playwright, browser_name, base_url, report, screenshots)
+                check_popup_and_permission_denial(playwright, browser_name, base_url, report, screenshots, extension_root)
+                check_field_insertion(playwright, browser_name, base_url, report, screenshots, test_extension_root)
                 report["status"] = "PASS"
             except PlaywrightError as error:
                 report["errors"].append(f"Browser/extension failure: {error}")
@@ -352,8 +353,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--browser", choices=["chromium", "msedge", "chrome"], default="chromium")
     parser.add_argument("--output", type=Path, default=ROOT / "work" / "extension-test-results.json")
+    parser.add_argument("--extension-root", type=Path, default=EXTENSION)
+    parser.add_argument("--test-extension-root", type=Path, default=TEST_EXTENSION)
     args = parser.parse_args()
-    report = run(args.browser, args.output.resolve())
+    report = run(args.browser, args.output.resolve(), args.extension_root.resolve(), args.test_extension_root.resolve())
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     sys.stdout.write(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
