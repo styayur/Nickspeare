@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import audit_extension
 import generate_extension_acceptance
 import package_extension
+import collect_exact_checks
 
 
 class ExtensionReleaseTests(unittest.TestCase):
@@ -68,6 +69,28 @@ class ExtensionReleaseTests(unittest.TestCase):
         self.assertEqual(generate_extension_acceptance.parse_coverage(coverage)["status"], "PASS")
         below = "all files | 50.00 | 50.00 | 50.00 |\n"
         self.assertEqual(generate_extension_acceptance.parse_coverage(below)["status"], "FAIL")
+
+    def test_exact_check_collector_accepts_complete_codeql_analyze_jobs(self):
+        def check(name, conclusion="success", status="completed"):
+            return {
+                "name": name,
+                "status": status,
+                "conclusion": conclusion,
+                "html_url": f"https://example.test/{name}",
+                "app": {"slug": "github-actions"},
+            }
+
+        names = collect_exact_checks.CODEQL_ANALYZE_CHECKS
+        complete = collect_exact_checks.latest_runs([check(name) for name in names])
+        summary = collect_exact_checks.summarize_codeql(complete)
+        self.assertEqual(summary["status"], "PASS")
+        self.assertEqual(summary["source"], "github-actions")
+
+        partial = collect_exact_checks.latest_runs([check(name) for name in names[:-1]])
+        self.assertNotEqual(collect_exact_checks.summarize_codeql(partial)["status"], "PASS")
+
+        failed = collect_exact_checks.latest_runs([check(name) for name in names[:-1]] + [check(names[-1], conclusion="failure")])
+        self.assertEqual(collect_exact_checks.summarize_codeql(failed)["status"], "FAIL")
 
     def test_release_workflow_is_tag_scoped_prerelease_and_non_overwriting(self):
         workflow = (ROOT / ".github" / "workflows" / "extension-release.yml").read_text(encoding="utf-8")
