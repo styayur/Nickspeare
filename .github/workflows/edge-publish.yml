@@ -1,0 +1,248 @@
+name: Publish to Microsoft Edge Add-ons
+
+on:
+  workflow_run:
+    workflows: ["Release browser extension"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing immutable extension-v* GitHub Release tag
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: edge-publish-${{ github.event.inputs.tag || github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Submit validated release to Edge Add-ons
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'extension-v'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: edge-production
+    env:
+      TAG: ${{ github.event.inputs.tag || github.event.workflow_run.head_branch }}
+      EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+      EDGE_CLIENT_ID: ${{ vars.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.event.workflow_run.head_branch }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+
+      - name: Download and verify immutable Release evidence
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$TAG" in
+            extension-v*) ;;
+            *) echo "Only extension-v* tags may be published" >&2; exit 1 ;;
+          esac
+          mkdir -p release-assets artifacts
+          gh release download "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir release-assets \
+            --pattern '*.zip' \
+            --pattern 'extension-acceptance.json' \
+            --pattern 'SHA256SUMS'
+          (
+            cd release-assets
+            sha256sum -c SHA256SUMS
+          )
+          python - "$GITHUB_OUTPUT" <<'PY'
+          import hashlib
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          output = Path(os.environ["GITHUB_OUTPUT"])
+          tag = os.environ["TAG"]
+          acceptance_path = Path("release-assets/extension-acceptance.json")
+          acceptance = json.loads(acceptance_path.read_text(encoding="utf-8"))
+          zip_files = sorted(Path("release-assets").glob("*.zip"))
+          if len(zip_files) != 1:
+              raise SystemExit(f"Expected exactly one release ZIP, found {len(zip_files)}")
+          package = zip_files[0]
+          package_sha = hashlib.sha256(package.read_bytes()).hexdigest()
+          commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          if acceptance.get("releaseReady") is not True:
+              raise SystemExit("Release acceptance is not release-ready")
+          if acceptance.get("commit") != commit:
+              raise SystemExit("Release acceptance commit does not match the checked-out tag")
+          if (acceptance.get("release") or {}).get("tag") != tag:
+              raise SystemExit("Release acceptance tag does not match the workflow tag")
+          if (acceptance.get("release") or {}).get("archiveSha256") != package_sha:
+              raise SystemExit("Release acceptance ZIP SHA-256 does not match the asset")
+          if not acceptance.get("manifestVersion"):
+              raise SystemExit("Release acceptance omits manifestVersion")
+          for browser in ("chromium", "msedge"):
+              status = ((acceptance.get("compatibility") or {}).get(browser) or {}).get("status")
+              if status != "PASS":
+                  raise SystemExit(f"{browser} acceptance is {status}")
+          values = {
+              "version": acceptance["version"],
+              "manifest-version": acceptance["manifestVersion"],
+              "zip-path": str(package.resolve()),
+              "zip-sha": package_sha,
+              "release-url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/tag/{tag}",
+          }
+          with output.open("a", encoding="utf-8") as handle:
+              for key, value in values.items():
+                  handle.write(f"{key}={value}\n")
+          PY
+          PRIVACY_URL=$(python -c 'import json; print(json.load(open("store/edge/submission.json", encoding="utf-8"))["privacyPolicyUrl"])')
+          curl --fail --silent --show-error --location --retry 3 --max-time 30 "$PRIVACY_URL" > /dev/null
+          echo "PRIVACY_URL=$PRIVACY_URL" >> "$GITHUB_ENV"
+
+      - name: Check idempotency and prior publish intent
+        id: state
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets \
+            --jq '.assets[].name' > release-assets/asset-names.txt
+          if grep -qx 'edge-store-acceptance.json' release-assets/asset-names.txt; then
+            mkdir -p release-assets/prior-state
+            gh release download "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --dir release-assets/prior-state \
+              --pattern 'edge-store-acceptance.json'
+            STATUS=$(python -c 'import json; print(json.load(open("release-assets/prior-state/edge-store-acceptance.json", encoding="utf-8")).get("officialStoreStatus", "UNKNOWN"))')
+            if [[ "$STATUS" == "SUBMITTED" ]]; then
+              echo "This release already has SUBMITTED Edge evidence; nothing to do."
+              echo "already-submitted=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Existing Edge acceptance has unrecognized status: $STATUS" >&2
+            exit 1
+          fi
+          if grep -qx 'edge-publish-intent.json' release-assets/asset-names.txt; then
+            echo "A prior upload intent exists without completion evidence." >&2
+            echo "Reconcile the Partner Center submission manually before retrying; refusing a duplicate submit." >&2
+            exit 1
+          fi
+          echo "already-submitted=false" >> "$GITHUB_OUTPUT"
+
+      - name: Validate protected production credentials
+        if: steps.state.outputs.already-submitted != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in EDGE_PRODUCT_ID EDGE_CLIENT_ID EDGE_API_KEY; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing protected environment value: $name" >&2
+              exit 1
+            fi
+          done
+          python - "$EDGE_PRODUCT_ID" "$EDGE_CLIENT_ID" <<'PY'
+          import re
+          import sys
+          pattern = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+          for label, value in (("EDGE_PRODUCT_ID", sys.argv[1]), ("EDGE_CLIENT_ID", sys.argv[2])):
+              if not pattern.fullmatch(value):
+                  raise SystemExit(f"{label} is not a GUID")
+          PY
+
+      - name: Record upload intent before mutating the store
+        if: steps.state.outputs.already-submitted != 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          MANIFEST_VERSION: ${{ steps.release.outputs.manifest-version }}
+          ZIP_SHA: ${{ steps.release.outputs.zip-sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import time
+          from pathlib import Path
+          intent = {
+              "schemaVersion": 1,
+              "tag": os.environ["TAG"],
+              "version": os.environ["VERSION"],
+              "manifestVersion": os.environ["MANIFEST_VERSION"],
+              "zipSha256": os.environ["ZIP_SHA"],
+              "productId": os.environ["EDGE_PRODUCT_ID"],
+              "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "purpose": "Fail closed against duplicate Edge submissions after an interrupted run.",
+          }
+          Path("artifacts/edge-publish-intent.json").write_text(
+              json.dumps(intent, indent=2) + "\n", encoding="utf-8"
+          )
+          PY
+          gh release upload "$TAG" artifacts/edge-publish-intent.json --repo "$GITHUB_REPOSITORY"
+
+      - name: Upload package and publish Edge submission
+        if: steps.state.outputs.already-submitted != 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          MANIFEST_VERSION: ${{ steps.release.outputs.manifest-version }}
+          ZIP_PATH: ${{ steps.release.outputs.zip-path }}
+          ZIP_SHA: ${{ steps.release.outputs.zip-sha }}
+          RELEASE_URL: ${{ steps.release.outputs.release-url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/edge_publish.py \
+            --root . \
+            --product-id "$EDGE_PRODUCT_ID" \
+            --client-id "$EDGE_CLIENT_ID" \
+            --package "$ZIP_PATH" \
+            --expected-sha256 "$ZIP_SHA" \
+            --version "$VERSION" \
+            --privacy-policy-url "$PRIVACY_URL" \
+            --notes-file store/edge/reviewer-notes.md \
+            --extension-acceptance release-assets/extension-acceptance.json \
+            --github-release-tag "$TAG" \
+            --github-release-url "$RELEASE_URL" \
+            --output artifacts/edge-store-acceptance.json \
+            --timeout 900 \
+            --max-retries 5
+
+      - name: Attach auditable submission evidence
+        if: steps.state.outputs.already-submitted != 'true'
+        env:
+          ZIP_PATH: ${{ steps.release.outputs.zip-path }}
+          ZIP_SHA: ${{ steps.release.outputs.zip-sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum artifacts/edge-store-acceptance.json "$ZIP_PATH" > artifacts/edge-store-SHA256SUMS
+          gh release upload "$TAG" \
+            artifacts/edge-store-acceptance.json \
+            artifacts/edge-store-SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY"
+
+      - name: Publish workflow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Microsoft Edge Add-ons submission"
+            echo
+            echo "- Release tag: \`$TAG\`"
+            if [[ -f artifacts/edge-store-acceptance.json ]]; then
+              STATUS=$(python -c 'import json; print(json.load(open("artifacts/edge-store-acceptance.json", encoding="utf-8"))["officialStoreStatus"])')
+              echo "- Recorded status: \`$STATUS\`"
+              echo "- \`SUBMITTED\` does not mean Microsoft has approved or published the extension."
+            else
+              echo "- No new submission was created in this run."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
