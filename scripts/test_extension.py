@@ -35,6 +35,7 @@ def result_template(browser_name: str) -> dict:
         "finishedAt": None,
         "checks": {},
         "errors": [],
+        "warnings": [],
         "screenshots": [],
     }
 
@@ -84,8 +85,11 @@ def popup_url(extension_id: str) -> str:
 
 def screenshot(report: dict, page, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    page.screenshot(path=str(path), full_page=True)
-    report["screenshots"].append(str(path.relative_to(ROOT)))
+    try:
+        page.screenshot(path=str(path), full_page=False)
+        report["screenshots"].append(str(path.relative_to(ROOT)))
+    except PlaywrightError as error:
+        report["warnings"].append(f"Screenshot unavailable: {error}")
 
 
 def find_test_tab(popup, url_fragment: str) -> int:
