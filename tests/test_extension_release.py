@@ -19,17 +19,29 @@ class ExtensionReleaseTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         root = Path(temporary.name)
         (root / "licenses").mkdir()
+        (root / "_locales" / "en").mkdir(parents=True)
+        (root / "_locales" / "zh_CN").mkdir(parents=True)
         manifest = {
             "manifest_version": 3,
-            "name": "Fixture",
-            "version": "0.1.0",
-            "version_name": "0.1.0-alpha.1",
+            "name": "__MSG_extensionName__",
+            "description": "__MSG_extensionDescription__",
+            "default_locale": "en",
+            "version": "0.1.1",
+            "version_name": "0.1.0-alpha.2",
             "permissions": ["activeTab", "scripting", "storage"],
             "action": {"default_popup": "popup.html"},
             "background": {"service_worker": "service-worker.js"},
             "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'self';"},
         }
         (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        for locale, label in (("en", "Fixture"), ("zh_CN", "测试扩展")):
+            (root / "_locales" / locale / "messages.json").write_text(
+                json.dumps({
+                    "extensionName": {"message": label},
+                    "extensionDescription": {"message": label + " description"},
+                }),
+                encoding="utf-8",
+            )
         (root / "popup.html").write_text("<script src=\"popup.js\"></script>", encoding="utf-8")
         (root / "popup.js").write_text(
             "chrome.storage.local; const SENSITIVE_HINTS='password email';"

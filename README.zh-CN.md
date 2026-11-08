@@ -2,9 +2,9 @@
 
 带有来源追溯记录、浏览器创作界面和离线优先浏览器扩展的莎士比亚风格昵称生成器。
 
-[English](README.md) · [在线演示](https://styayur.github.io/Nickspeare/) · [Python v1.0.0](https://github.com/styayur/Nickspeare/releases/tag/v1.0.0) · [浏览器扩展预发布](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.1)
+[English](README.md) · [在线演示](https://styayur.github.io/Nickspeare/) · [Python v1.0.0](https://github.com/styayur/Nickspeare/releases/tag/v1.0.0) · [浏览器扩展预发布](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.2)
 
-**阶段：Experimental。** Python 与浏览器流程已有自动检查，持续性的独立用户验收仍待完成。Python 源码声明版本为 1.1.0，最新正式发布为 v1.0.0；浏览器扩展独立版本化，以 0.1.0-alpha.1 预发布。
+**阶段：Experimental。** Python 与浏览器流程已有自动检查，持续性的独立用户验收仍待完成。Python 源码声明版本为 1.1.0，最新正式发布为 v1.0.0；浏览器扩展独立版本化，以 0.1.0-alpha.2 预发布。
 
 ![实际运行的浏览器创作界面：生成昵称、生成设置和语料覆盖范围](docs/screenshot.png)
 
@@ -23,7 +23,7 @@
 
 ### 浏览器扩展（Chromium 与 Edge）
 
-从[扩展预发布](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.1)下载 ZIP 并解压；文件夹根目录应直接包含 `manifest.json`。
+从[扩展预发布](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.2)下载 ZIP 并解压；文件夹根目录应直接包含 `manifest.json`。
 
 1. 在 Chrome/Chromium 打开 `chrome://extensions`，或在 Microsoft Edge 打开 `edge://extensions`。
 2. 启用**开发者模式**。

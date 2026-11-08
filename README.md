@@ -2,9 +2,9 @@
 
 A Shakespearean nickname generator with source-linked provenance, a browser composing room and an offline-first browser extension.
 
-[简体中文](README.zh-CN.md) · [Live demo](https://styayur.github.io/Nickspeare/) · [Python v1.0.0](https://github.com/styayur/Nickspeare/releases/tag/v1.0.0) · [Extension pre-release](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.1)
+[简体中文](README.zh-CN.md) · [Live demo](https://styayur.github.io/Nickspeare/) · [Python v1.0.0](https://github.com/styayur/Nickspeare/releases/tag/v1.0.0) · [Extension pre-release](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.2)
 
-**Stage: Experimental.** Python and browser workflows have automated checks; sustained independent user acceptance remains outstanding. Python source declares 1.1.0 while the latest published Python release is v1.0.0. The browser extension is independently versioned and pre-released as 0.1.0-alpha.1.
+**Stage: Experimental.** Python and browser workflows have automated checks; sustained independent user acceptance remains outstanding. Python source declares 1.1.0 while the latest published Python release is v1.0.0. The browser extension is independently versioned and pre-released as 0.1.0-alpha.2.
 
 ![Running browser composing room with a generated name, generation controls and corpus coverage](docs/screenshot.png)
 
@@ -23,7 +23,7 @@ Evidence attests the ingredients, not the invented name. The scoring and editori
 
 ### Browser extension (Chromium and Edge)
 
-Download the ZIP asset from the [extension pre-release](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.1), then extract it. The folder must contain `manifest.json` at its root.
+Download the ZIP asset from the [extension pre-release](https://github.com/styayur/Nickspeare/releases/tag/extension-v0.1.0-alpha.2), then extract it. The folder must contain `manifest.json` at its root.
 
 1. Open `chrome://extensions` in Chrome/Chromium or `edge://extensions` in Microsoft Edge.
 2. Enable **Developer mode**.

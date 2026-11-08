@@ -26,7 +26,7 @@ await cp(path.join(root, "SECURITY.md"), path.join(out, "licenses", "SECURITY.md
 const manifest = JSON.parse(await readFile(path.join(out, "manifest.json"), "utf8"));
 if (manifest.manifest_version !== 3) throw new Error("Extension must use Manifest V3.");
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) throw new Error("Manifest version must be numeric.");
-if (manifest.version !== "0.1.0" || manifest.version_name !== "0.1.0-alpha.1") {
+if (manifest.version !== "0.1.1" || manifest.version_name !== "0.1.0-alpha.2") {
   throw new Error("Unexpected extension version identity.");
 }
 const permissions = manifest.permissions || [];

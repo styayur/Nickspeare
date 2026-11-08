@@ -1,4 +1,4 @@
-# Nickspeare Browser Extension v0.1.0-alpha.1
+# Nickspeare Browser Extension v0.1.0-alpha.2
 
 **Pre-release.** A lightweight, offline-first Manifest V3 username composer for Chromium and Microsoft Edge.
 
@@ -14,7 +14,7 @@
 
 ## Install
 
-1. Download and extract `nickspeare-extension-chromium-v0.1.0-alpha.1.zip`.
+1. Download and extract `nickspeare-extension-chromium-v0.1.0-alpha.2.zip`.
 2. Open `chrome://extensions` in Chrome/Chromium or `edge://extensions` in Edge.
 3. Enable **Developer mode** and choose **Load unpacked**.
 4. Select the extracted folder containing `manifest.json` at its root.
@@ -26,7 +26,7 @@ The extension works without a page username field for generation and copying. Pa
 - Chromium {{CHROMIUM_VERSION}}: **PASS** (real MV3 load, popup, offline generation, clipboard, field bridge and React controlled input).
 - Microsoft Edge {{EDGE_VERSION}}: **PASS** (same acceptance suite).
 - Google Chrome branded build: **NOT_RUN** for automated CLI loading because branded Chrome blocks the unpacked-extension command-line flag; developers and users can still load the ZIP through Developer mode.
-- Firefox: **NOT_APPLICABLE** for v0.1.0-alpha.1.
+- Firefox: **NOT_APPLICABLE** for v0.1.0-alpha.2.
 
 ## Permissions and privacy
 
@@ -69,6 +69,6 @@ Next work includes a reviewed corpus extension, clearer evidence views, optional
 
 ## 中文摘要
 
-Nickspeare 浏览器扩展 v0.1.0-alpha.1 是面向 Chromium 与 Microsoft Edge 的离线优先预发布版本。它可在本地生成带来源解释的用户名，支持长度、大小写、数字、下划线和保留词等规则，并可在用户明确选择字段后填入当前页面。扩展不会填写密码、邮箱、OTP 或支付类字段，不会覆盖非空文本（除非用户明确点击替换），也不会自动提交表单。
+Nickspeare 浏览器扩展 v0.1.0-alpha.2 是面向 Chromium 与 Microsoft Edge 的离线优先预发布版本。它可在本地生成带来源解释的用户名，支持长度、大小写、数字、下划线和保留词等规则，并可在用户明确选择字段后填入当前页面。扩展不会填写密码、邮箱、OTP 或支付类字段，不会覆盖非空文本（除非用户明确点击替换），也不会自动提交表单。
 
 正式构建只申请 `activeTab`、`scripting` 和 `storage`，没有永久站点权限，不收集页面内容、账户信息或浏览历史，也不连接远程生成服务。Chrome/Chromium 与 Edge 已通过真实浏览器验收；Firefox、iframe、closed shadow root、页内自动建议和商店提交不在本版本范围内。代码采用 AGPL-3.0-or-later；Folger 衍生语料仍受 CC BY-NC 3.0 的署名与非商业限制约束。

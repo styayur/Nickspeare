@@ -15,7 +15,7 @@ from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ROOT = ROOT / "dist" / "extension"
-VERSION = "0.1.0-alpha.1"
+VERSION = "0.1.0-alpha.2"
 ZIP_NAME = f"nickspeare-extension-chromium-v{VERSION}.zip"
 FORBIDDEN_PARTS = {".git", "node_modules", "tests", "test", "coverage", "__pycache__", ".cache"}
 
@@ -58,6 +58,8 @@ def validate_entries(names: list[str], manifest: dict) -> list[str]:
         "content/username-detector.js",
         "core/engine.js",
         "core/atlas.json",
+        "_locales/en/messages.json",
+        "_locales/zh_CN/messages.json",
         "licenses/LICENSE",
         "licenses/DATA_SOURCES.md",
         "SOURCE.md",
@@ -76,7 +78,7 @@ def package(root: Path, output_dir: Path, extract_to: Path, release: bool, expec
     if not manifest_path.is_file():
         raise RuntimeError("Built extension manifest is missing")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    if manifest.get("version") != "0.1.0" or manifest.get("version_name") != VERSION:
+    if manifest.get("version") != "0.1.1" or manifest.get("version_name") != VERSION:
         raise RuntimeError("Unexpected extension version")
     provenance_path = root / "BUILD_PROVENANCE.json"
     provenance = json.loads(provenance_path.read_text(encoding="utf-8")) if provenance_path.is_file() else {}

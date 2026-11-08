@@ -35,9 +35,9 @@ jobs:
           import json
           from pathlib import Path
           manifest = json.loads(Path('extension/manifest.json').read_text())
-          assert manifest['version'] == '0.1.0'
-          assert manifest['version_name'] == '0.1.0-alpha.1'
-          assert '${{ github.ref_name }}' == 'extension-v0.1.0-alpha.1'
+          assert manifest['version'] == '0.1.1'
+          assert manifest['version_name'] == '0.1.0-alpha.2'
+          assert '${{ github.ref_name }}' == 'extension-v0.1.0-alpha.2'
           PY
       - run: npm ci
       - run: python -m pip install -e '.[dev]'
@@ -78,7 +78,7 @@ jobs:
             artifacts/extension-audit.json
             artifacts/extension-package.json
             artifacts/extension-chromium.json
-            artifacts/nickspeare-extension-chromium-v0.1.0-alpha.1.zip
+            artifacts/nickspeare-extension-chromium-v0.1.0-alpha.2.zip
             artifacts/screenshots
 
   edge:
@@ -104,7 +104,7 @@ jobs:
       - name: Extract release ZIP
         shell: pwsh
         run: |
-          $zip = Get-ChildItem -LiteralPath chromium-evidence -Filter 'nickspeare-extension-chromium-v0.1.0-alpha.1.zip' | Select-Object -First 1
+          $zip = Get-ChildItem -LiteralPath chromium-evidence -Filter 'nickspeare-extension-chromium-v0.1.0-alpha.2.zip' | Select-Object -First 1
           if (-not $zip) { throw 'Release ZIP was not downloaded' }
           Expand-Archive -LiteralPath $zip.FullName -DestinationPath artifacts/extension-unpacked -Force
       - run: npm run build:extension:test
@@ -180,12 +180,12 @@ jobs:
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # pinned reviewed release action
         with:
           tag_name: ${{ github.ref_name }}
-          name: Nickspeare Browser Extension v0.1.0-alpha.1
+          name: Nickspeare Browser Extension v0.1.0-alpha.2
           prerelease: true
           make_latest: false
           body_path: artifacts/release-notes.md
           fail_on_unmatched_files: true
           files: |
-            artifacts/nickspeare-extension-chromium-v0.1.0-alpha.1.zip
+            artifacts/nickspeare-extension-chromium-v0.1.0-alpha.2.zip
             artifacts/SHA256SUMS
             artifacts/extension-acceptance.json
