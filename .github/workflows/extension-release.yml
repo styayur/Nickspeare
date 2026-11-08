@@ -148,7 +148,9 @@ jobs:
             --edge artifacts/extension-edge.json \
             --audit artifacts/extension-audit.json \
             --package artifacts/extension-package.json \
-            --exact-checks artifacts/exact-checks.json
+            --exact-checks artifacts/exact-checks.json \
+            --governance-status PASS \
+            --governance-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions"
           python scripts/render_release_notes.py
       - name: Verify release assets
         shell: bash

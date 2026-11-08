@@ -179,6 +179,8 @@ def generate(args) -> dict:
     for key, value in (("ci", args.ci_status), ("codeql", args.codeql_status), ("codeforge", args.codeforge_status)):
         if value != "PASS":
             blockers.append(f"Exact-commit {key} evidence is {value}")
+    if args.governance_status != "PASS":
+        blockers.append(f"Repository governance status is {args.governance_status}")
 
     archive_path = ROOT / package.get("archive", "") if package.get("archive") else None
     archive_ok = bool(archive_path and archive_path.is_file() and sha256(archive_path) == package.get("sha256"))
@@ -222,7 +224,7 @@ def generate(args) -> dict:
         "releaseHygiene": dimension(10, package_earned, "ZIP structure, licenses, path safety and checksum"),
     }
     quality_score = round(sum(item["earned"] for item in dimensions.values()), 2)
-    release_ready = not blockers and commit and chromium.get("status") == "PASS" and archive_ok and provenance_clean and provenance_matches
+    release_ready = not blockers and commit and chromium.get("status") == "PASS" and archive_ok and provenance_clean and provenance_matches and args.governance_status == "PASS"
     overall = "PASS" if release_ready else ("FAIL" if any("failed" in blocker.lower() or "does not match" in blocker.lower() for blocker in blockers) else "BLOCKED")
     security_status = "PASS" if all((audit_checks.get(name) or {}).get("status") == "PASS" for name in ("permissionsMinimal", "noHostPermissions", "noEval", "noRemoteScript", "noEmbeddedSecrets", "workflowPinning", "noRuntimeDependencies", "pythonDevPins", "codeforgeToolPin")) and args.codeql_status == "PASS" and args.codeforge_status == "PASS" else "FAIL"
     license_status = "PASS" if all((audit_checks.get(name) or {}).get("status") == "PASS" for name in ("licenseFiles", "corpusRights", "sourceOffer")) else "FAIL"
@@ -255,6 +257,7 @@ def generate(args) -> dict:
             "external": {
                 "codeql": {"status": args.codeql_status, "url": args.codeql_url or None},
                 "codeforge": {"status": args.codeforge_status, "url": args.codeforge_url or None},
+                "governance": {"status": args.governance_status, "url": args.governance_url or None},
             },
         },
         "compatibility": {
@@ -309,6 +312,8 @@ def main() -> int:
     parser.add_argument("--codeforge-status", choices=["PASS", "FAIL", "NOT_RUN"], default="NOT_RUN")
     parser.add_argument("--codeql-url", default="")
     parser.add_argument("--codeforge-url", default="")
+    parser.add_argument("--governance-status", choices=["PASS", "FAIL", "BLOCKED", "NOT_RUN"], default="NOT_RUN")
+    parser.add_argument("--governance-url", default="")
     args = parser.parse_args()
     for attribute in ("node_log", "coverage_log", "python_log", "pages_log", "chromium", "edge", "audit", "package", "exact_checks", "output"):
         value = getattr(args, attribute, None)
