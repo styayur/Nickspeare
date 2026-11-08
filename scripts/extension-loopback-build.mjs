@@ -5,6 +5,10 @@ import path from "node:path";
 
 const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const output = path.join(root, "dist", "extension-test");
+execFileSync(process.execPath, ["scripts/build-extension.mjs"], {
+  cwd: root,
+  stdio: "inherit",
+});
 execFileSync(process.execPath, ["scripts/build-extension.mjs", "--out", output], {
   cwd: root,
   stdio: "inherit",
