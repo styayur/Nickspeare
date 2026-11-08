@@ -132,3 +132,38 @@ footer a { color: var(--muted); }
   @keyframes settle { from { opacity: 0; transform: translateY(3px); } }
   @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
 }
+
+.candidate-actions { display: flex; flex: none; align-items: stretch; gap: 4px; }
+.copy, .fill {
+  border: 1px solid var(--rule); border-radius: 3px; padding: 5px 7px;
+  color: var(--red-dark); background: transparent; font: 700 9px/1 ui-monospace, Consolas, monospace;
+  letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap;
+}
+.copy:hover, .fill:hover { border-color: var(--red); background: var(--paper-raised); }
+.fill { color: #fff8e8; border-color: var(--red-dark); background: var(--red); }
+.fill:hover { color: #fff8e8; background: var(--red-dark); }
+.copy:disabled, .fill:disabled { cursor: wait; opacity: 0.58; }
+
+.field-panel {
+  margin-top: 12px; padding: 12px; border: 1px solid var(--rule);
+  background: var(--paper-raised);
+}
+.field-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.field-panel h2 { font-size: 18px; }
+.field-list { display: grid; gap: 7px; margin-top: 10px; }
+.field-choice {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; width: 100%;
+  padding: 9px; border: 1px solid var(--rule); border-radius: 3px; text-align: left;
+  color: var(--ink); background: var(--paper);
+}
+.field-choice:hover { border-color: var(--red); }
+.field-choice-line { display: grid; gap: 3px; min-width: 0; }
+.field-choice-line strong { overflow-wrap: anywhere; font-size: 13px; }
+.field-action { align-self: center; color: var(--red-dark); font: 700 9px/1.2 ui-monospace, Consolas, monospace; text-transform: uppercase; }
+.confidence { color: var(--muted); font: 10px/1.3 ui-monospace, Consolas, monospace; }
+.confidence.high { color: #315b3a; }
+.confidence.low { color: var(--red-dark); }
+.field-warning {
+  grid-column: 1 / -1; padding-top: 5px; border-top: 1px dotted var(--rule);
+  color: var(--red-dark); font-size: 10px; line-height: 1.35;
+}
