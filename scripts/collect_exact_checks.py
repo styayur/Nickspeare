@@ -10,6 +10,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from typing import Optional
 
 REQUIRED = {
     "build": "build",
@@ -20,6 +21,13 @@ REQUIRED = {
     "codeforge": "CodeForge regression",
     "codeql": "CodeQL",
 }
+
+CODEQL_ANALYZE_CHECKS = (
+    "Analyze (actions)",
+    "Analyze (javascript-typescript)",
+    "Analyze (python)",
+)
+TRACKED_CHECK_NAMES = set(REQUIRED.values()) | set(CODEQL_ANALYZE_CHECKS)
 
 
 def api(url: str, token: str) -> dict:
@@ -40,7 +48,7 @@ def latest_runs(runs: list[dict]) -> dict[str, dict]:
     selected: dict[str, dict] = {}
     for run in runs:
         name = str(run.get("name") or "")
-        if name not in REQUIRED.values():
+        if name not in TRACKED_CHECK_NAMES:
             continue
         previous = selected.get(name)
         current_good = str(run.get("status") or "").upper() == "COMPLETED" and str(run.get("conclusion") or "").upper() == "SUCCESS"
@@ -52,34 +60,71 @@ def latest_runs(runs: list[dict]) -> dict[str, dict]:
     return selected
 
 
+def summarize_check(name: str, run: Optional[dict], trusted_apps: set[str]) -> dict:
+    if not run:
+        return {"name": name, "status": "MISSING", "conclusion": None, "source": None, "url": None}
+    status = str(run.get("status") or "").upper()
+    conclusion = str(run.get("conclusion") or "").upper()
+    app_slug = str((run.get("app") or {}).get("slug") or "")
+    trusted = app_slug in trusted_apps
+    ok = status == "COMPLETED" and conclusion == "SUCCESS" and trusted
+    return {
+        "name": name,
+        "status": "PASS" if ok else ("FAIL" if status == "COMPLETED" else "PENDING"),
+        "conclusion": conclusion or None,
+        "source": app_slug or None,
+        "url": run.get("html_url") or run.get("details_url"),
+    }
+
+
+def summarize_codeql(last: dict[str, dict]) -> dict:
+    direct = last.get("CodeQL")
+    if direct:
+        return summarize_check("CodeQL", direct, {"github-actions", "github-advanced-security"})
+    runs = [last.get(name) for name in CODEQL_ANALYZE_CHECKS]
+    if not all(runs):
+        present = [run for run in runs if run]
+        return {
+            "name": "CodeQL Analyze jobs",
+            "status": "PENDING" if present else "MISSING",
+            "conclusion": None,
+            "source": None,
+            "url": present[0].get("html_url") if present else None,
+        }
+    summaries = [summarize_check(name, run, {"github-actions"}) for name, run in zip(CODEQL_ANALYZE_CHECKS, runs)]
+    if any(item["status"] == "FAIL" for item in summaries):
+        status = "FAIL"
+    elif all(item["status"] == "PASS" for item in summaries):
+        status = "PASS"
+    else:
+        status = "PENDING"
+    return {
+        "name": "CodeQL Analyze jobs",
+        "status": status,
+        "conclusion": "SUCCESS" if status == "PASS" else None,
+        "source": "github-actions",
+        "url": summaries[0]["url"],
+    }
+
+
+def summarize_required(last: dict[str, dict]) -> tuple[dict[str, dict], list[str]]:
+    summaries = {}
+    pending = []
+    for key, name in REQUIRED.items():
+        summary = summarize_codeql(last) if key == "codeql" else summarize_check(name, last.get(name), {"github-actions"})
+        summaries[key] = summary
+        if summary["status"] != "PASS":
+            pending.append(summary["name"])
+    return summaries, pending
+
+
 def collect(repo: str, sha: str, token: str, timeout: int, interval: int) -> dict:
     deadline = time.time() + timeout
     last = {}
     while True:
         data = api(f"https://api.github.com/repos/{repo}/commits/{sha}/check-runs?per_page=100", token)
         last = latest_runs(data.get("check_runs") or [])
-        summaries = {}
-        pending = []
-        for key, name in REQUIRED.items():
-            run = last.get(name)
-            if not run:
-                summaries[key] = {"name": name, "status": "MISSING", "conclusion": None, "url": None}
-                pending.append(name)
-                continue
-            status = str(run.get("status") or "").upper()
-            conclusion = str(run.get("conclusion") or "").upper()
-            app_slug = str((run.get("app") or {}).get("slug") or "")
-            trusted = app_slug == "github-actions" or (name == "CodeQL" and app_slug == "github-advanced-security")
-            ok = status == "COMPLETED" and conclusion == "SUCCESS" and trusted
-            summaries[key] = {
-                "name": name,
-                "status": "PASS" if ok else ("FAIL" if status == "COMPLETED" else "PENDING"),
-                "conclusion": conclusion or None,
-                "source": app_slug or None,
-                "url": run.get("html_url") or run.get("details_url"),
-            }
-            if not ok:
-                pending.append(name)
+        summaries, pending = summarize_required(last)
         if not pending:
             return {
                 "schemaVersion": 1,
