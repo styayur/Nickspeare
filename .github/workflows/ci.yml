@@ -43,3 +43,14 @@ jobs:
         with:
           name: browser-screenshots
           path: work/screenshots
+
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install build
+      - run: python -m build
