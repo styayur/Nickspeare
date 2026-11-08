@@ -231,6 +231,7 @@ class EdgePublishTests(unittest.TestCase):
         self.assertIn("workflow_run:", workflow)
         self.assertIn("Release browser extension", workflow)
         self.assertIn("environment: edge-production", workflow)
+        self.assertIn("GH_TOKEN: ${{ github.token }}", workflow)
         self.assertIn("actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", workflow)
         self.assertIn("actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0", workflow)
         self.assertNotIn("ref: ${{ github.event.inputs.tag", workflow)

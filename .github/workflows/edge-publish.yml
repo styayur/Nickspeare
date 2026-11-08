@@ -30,6 +30,7 @@ jobs:
     timeout-minutes: 40
     environment: edge-production
     env:
+      GH_TOKEN: ${{ github.token }}
       TAG: ${{ github.event.inputs.tag || github.event.workflow_run.head_branch }}
       RELEASE_SHA: ${{ github.event.workflow_run.head_sha }}
       EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
