@@ -41,7 +41,7 @@
 6. Choose the login username field, which contains existing text, and confirm that replacement requires an explicit action.
 7. Confirm that the email and password fields are excluded from the field chooser.
 8. Confirm that no form is submitted.
-9. Choose the display-name or React-controlled field and confirm that the visible value changes without a remote request.
+9. Choose the display-name field and confirm that the visible value changes without a remote request.
 
 ## Permissions and privacy checks
 
@@ -57,3 +57,4 @@
 - No automatic form submission.
 - No iframe or closed shadow-root scanning.
 - No Firefox support in this series.
+
