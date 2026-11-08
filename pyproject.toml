@@ -20,7 +20,7 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["build==1.4.4", "playwright==1.63.0"]
+dev = ["build==1.4.4", "playwright==1.63.0", "tomli==2.3.0; python_version < '3.11'"]
 
 [project.urls]
 Homepage = "https://styayur.github.io/Nickspeare/"
