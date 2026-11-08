@@ -41,7 +41,7 @@ test("policy normalization clamps and migrates malformed values", () => {
   assert.equal(policy.candidateCount, 6);
   assert.equal(policy.rule, "rogue_to_king");
   assert.equal(policy.caseStyle, "title");
-  assert.equal(policy.allowNumbers, true);
+  assert.equal(policy.allowNumbers, false);
   assert.deepEqual(policy.reservedWords, ["king", "crown"]);
 });
 

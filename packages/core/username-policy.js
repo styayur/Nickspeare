@@ -59,8 +59,8 @@ export function normalizeUsernamePolicy(input = {}) {
     caseStyle: CASE_STYLES.includes(source.caseStyle)
       ? source.caseStyle
       : "title",
-    allowNumbers: source.allowNumbers !== false,
-    allowUnderscore: source.allowUnderscore !== false,
+    allowNumbers: !['false', '0', 'no', 'off'].includes(String(source.allowNumbers).toLowerCase()),
+    allowUnderscore: !['false', '0', 'no', 'off'].includes(String(source.allowUnderscore).toLowerCase()),
     rule: COMPOSITION_RULES.includes(source.rule)
       ? source.rule
       : "rogue_to_king",
