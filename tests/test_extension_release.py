@@ -65,6 +65,10 @@ class ExtensionReleaseTests(unittest.TestCase):
     def test_coverage_and_node_logs_are_parsed_with_thresholds(self):
         node = "ℹ tests 10\nℹ pass 10\nℹ fail 0\n"
         self.assertEqual(generate_extension_acceptance.parse_node(node)["status"], "PASS")
+        tap = "# tests 19\n# pass 19\n# fail 0\n"
+        tap_result = generate_extension_acceptance.parse_node(tap)
+        self.assertEqual(tap_result["status"], "PASS")
+        self.assertEqual((tap_result["tests"], tap_result["passed"], tap_result["failed"]), (19, 19, 0))
         coverage = "all files | 85.00 | 80.00 | 90.00 |\n"
         self.assertEqual(generate_extension_acceptance.parse_coverage(coverage)["status"], "PASS")
         below = "all files | 50.00 | 50.00 | 50.00 |\n"

@@ -53,9 +53,9 @@ def read_json(path: Path | None) -> dict:
 
 
 def parse_node(log: str) -> dict:
-    tests = re.search(r"ℹ tests (\d+)", log)
-    passed = re.search(r"ℹ pass (\d+)", log)
-    failed = re.search(r"ℹ fail (\d+)", log)
+    tests = re.search(r"(?:ℹ|#)\s*tests\s+(\d+)", log)
+    passed = re.search(r"(?:ℹ|#)\s*pass\s+(\d+)", log)
+    failed = re.search(r"(?:ℹ|#)\s*fail\s+(\d+)", log)
     test_count = int(tests.group(1)) if tests else 0
     pass_count = int(passed.group(1)) if passed else 0
     fail_count = int(failed.group(1)) if failed else (test_count - pass_count if test_count else 0)
