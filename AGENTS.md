@@ -8,7 +8,7 @@ This is a public repository in the `styayur` portfolio. Read `README.md`, releas
 
 ## Architecture & Stable Contracts
 
-- Primary language: `Python`.
+- Primary languages: `Python` for the package/CLI and JavaScript for the shared browser core and Manifest V3 extension.
 - Preserve documented public interfaces, configuration formats, data compatibility and release identities unless the PR explicitly migrates them.
 - Use repository documents as the authority: `README.md`, `CONTRIBUTING.md` when present, and `SECURITY.md`.
 
@@ -30,7 +30,7 @@ Use observed commands only:
 python -m pytest -q
 ```
 
-Authoritative CI entrypoints:
+Browser extension work also requires the real Chromium/Edge suite and the fail-closed audit/package checks documented in `docs/EXTENSION.md`. Authoritative CI entrypoints:
 - `.github/workflows/ci.yml` — Verify
 - `.github/workflows/codeforge-regression.yml` — CodeForge regression
 - `.github/workflows/release.yml` — Release Python package

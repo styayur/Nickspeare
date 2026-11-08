@@ -1,5 +1,7 @@
-include README.md CHANGELOG.md CONTRIBUTING.md DATA_SOURCES.md package.json
+include README.md README.zh-CN.md CHANGELOG.md CONTRIBUTING.md DATA_SOURCES.md SECURITY.md package.json package-lock.json
 recursive-include docs *.html *.css *.js *.json *.md
-recursive-include scripts *.py
+recursive-include extension *.html *.css *.js *.json *.png *.md
+recursive-include packages *.js
+recursive-include scripts *.py *.mjs
 recursive-include R *.R
-recursive-include tests *.py *.js
+recursive-include tests *.py *.js *.html

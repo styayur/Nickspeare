@@ -27,3 +27,19 @@ of packaged data until it has been compared with the Python build. Update
 Bug reports should include engine/version, seed, rule, suffix and exported JSON.
 New algorithms should include deterministic regression tests and document their
 limits. Browser and Python seeds are intentionally engine-specific.
+
+Browser-extension changes additionally require:
+
+```sh
+npm ci
+npm run test:coverage
+npm run test:extension
+npm run audit:extension
+npm run package:extension
+```
+
+Run the extension suite under `xvfb-run -a` on Linux. On Windows, verify actual
+Edge with `python scripts/test_extension.py --browser msedge`. The production
+manifest must not gain permanent host permissions, automatically injected
+content scripts, remote code, telemetry or access to password/email/OTP/payment
+fields without an explicit security and product decision.
