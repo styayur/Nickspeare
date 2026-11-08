@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:," />
+<title>Nickspeare field fixtures</title>
+    <style>
+      body { font: 16px/1.5 Georgia, serif; margin: 24px; max-width: 860px; }
+      form, section { border: 1px solid #bbb; margin: 16px 0; padding: 16px; }
+      label { display: block; margin: 10px 0 4px; font-weight: 700; }
+      input { box-sizing: border-box; min-width: 280px; padding: 7px; }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <h1>Field detection fixtures</h1>
+    <p>This page is local test data. No request leaves 127.0.0.1.</p>
+
+    <form id="registration-form" action="/register" method="post">
+      <h2>Create your account</h2>
+      <label for="register-username">Choose a username</label>
+      <input id="register-username" name="username" autocomplete="username" aria-describedby="username-note" />
+      <small id="username-note">4–24 letters and numbers.</small>
+      <label for="register-email">Email address</label>
+      <input id="register-email" name="email" type="email" autocomplete="email" />
+      <label for="register-password">Password</label>
+      <input id="register-password" name="password" type="password" autocomplete="new-password" />
+      <input id="hidden-username" name="username" value="hidden" class="hidden" />
+    </form>
+
+    <form id="profile-form">
+      <h2>Your profile</h2>
+      <label for="profile-nickname">Display nickname</label>
+      <input id="profile-nickname" name="nickname" autocomplete="nickname" />
+    </form>
+
+    <form id="login-form">
+      <h2>Sign in</h2>
+      <label for="login-username">Username</label>
+      <input id="login-username" name="username" autocomplete="username" value="existing_user" />
+      <label for="login-password">Password</label>
+      <input id="login-password" name="password" type="password" autocomplete="current-password" />
+    </form>
+
+    <form id="search-form" role="search">
+      <label for="search-field">Search this site</label>
+      <input id="search-field" name="q" type="search" aria-label="Search &lt;img src=x onerror=window.__xss=1&gt;" />
+    </form>
+
+    <div id="react-root"></div>
+    <p id="event-log">Events: none</p>
+    <iframe id="cross-frame" title="Cross-origin fixture" width="600" height="250"></iframe>
+    <script>
+      window.fieldEvents = [];
+      window.submitEvents = 0;
+      document.addEventListener("input", (event) => {
+        if (!event.target.matches("input, textarea")) return;
+        window.fieldEvents.push({ type: event.type, id: event.target.id, value: event.target.value });
+        document.getElementById("event-log").textContent = `Events: ${JSON.stringify(window.fieldEvents)}`;
+      });
+      document.addEventListener("change", (event) => {
+        if (!event.target.matches("input, textarea")) return;
+        window.fieldEvents.push({ type: event.type, id: event.target.id, value: event.target.value });
+        document.getElementById("event-log").textContent = `Events: ${JSON.stringify(window.fieldEvents)}`;
+      });
+      document.addEventListener("submit", (event) => { event.preventDefault(); window.submitEvents += 1; });
+    </script>
+    <script src="/node_modules/react/umd/react.development.js"></script>
+    <script src="/node_modules/react-dom/umd/react-dom.development.js"></script>
+    <script src="/tests/fixtures/react-controlled.js"></script>
+  </body>
+</html>
