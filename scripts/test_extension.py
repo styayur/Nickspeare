@@ -42,6 +42,8 @@ def launch_context(playwright, browser_name: str, profile: str):
             f"--disable-extensions-except={EXTENSION}",
             f"--load-extension={EXTENSION}",
             "--disable-component-update",
+            "--disable-gpu",
+            "--disable-dev-shm-usage",
         ],
     }
     if browser_name == "msedge":
