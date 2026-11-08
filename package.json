@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/browser-engine.test.js"
+    "test": "node --test",
+    "sync:core": "node scripts/sync-js-core.mjs"
   },
   "engines": {
     "node": ">=20"
