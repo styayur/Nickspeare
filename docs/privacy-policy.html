@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Nickspeare browser extension privacy policy">
+  <meta name="theme-color" content="#0f172a">
+  <title>Privacy Policy — Nickspeare Browser Extension</title>
+  <style>
+    :root { --paper:#f3ecdc; --paper-raised:#fbf6ea; --ink:#1e1b16; --muted:#665f54; --navy:#0f172a; --red:#7d2d2a; --gold:#b07b20; --rule:#cfc2aa; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:17px/1.65 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; }
+    header { padding:28px clamp(20px,6vw,72px); color:#f8efd9; background:var(--navy); border-bottom:4px double var(--gold); }
+    header a { color:#f8efd9; text-decoration:none; }
+    .wordmark { display:inline-block; font-size:31px; letter-spacing:-.04em; }
+    .wordmark span { color:#d9b969; }
+    main { width:min(860px,calc(100% - 36px)); margin:42px auto 64px; }
+    .eyebrow { margin:0 0 8px; color:var(--red); font:700 11px/1.3 ui-monospace,Consolas,monospace; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { margin:0 0 10px; font-size:clamp(38px,7vw,68px); font-weight:600; line-height:.98; letter-spacing:-.045em; }
+    h2 { margin:38px 0 10px; padding-top:18px; border-top:1px solid var(--rule); font-size:25px; }
+    p, li { max-width:72ch; }
+    .lede { color:var(--muted); font-size:20px; }
+    .note { padding:16px 18px; border:1px solid var(--rule); background:var(--paper-raised); }
+    a { color:var(--red); text-underline-offset:3px; }
+    code { padding:2px 5px; background:#e9dec9; font:13px/1.4 ui-monospace,Consolas,monospace; }
+    footer { margin-top:52px; padding-top:18px; border-top:1px solid var(--rule); color:var(--muted); font-size:14px; }
+  </style>
+</head>
+<body>
+  <header><a class="wordmark" href="./">Nickspeare<span>✳</span></a></header>
+  <main>
+    <p class="eyebrow">Browser extension privacy policy</p>
+    <h1>Your words stay<br>on your device.</h1>
+    <p class="lede">This policy describes the Manifest V3 Nickspeare browser extension for Chromium and Microsoft Edge.</p>
+    <p><strong>Effective date:</strong> 8 November 2026</p>
+
+    <h2>What the extension does</h2>
+    <p>Nickspeare generates invented Shakespearean-style usernames from a bundled evidence atlas. Generation runs locally inside the extension. The extension can also classify username-like fields on the active page after the user explicitly opens the popup and chooses <strong>Use on page</strong>, and can place a selected generated username into a field the user explicitly chooses.</p>
+
+    <h2>Information handled locally</h2>
+    <ul>
+      <li><strong>Preferences:</strong> generation rule, letter case, suffix, candidate count, length limits, reserved words, forbidden prefixes or suffixes, and seed are stored in <code>chrome.storage.local</code> under the versioned key <code>nickspeare.preferences.v1</code>.</li>
+      <li><strong>Field descriptors:</strong> when the user requests page-field detection, the extension temporarily reads limited editable-field metadata such as element type, labels, accessible names, autocomplete hints, visibility, form context and whether the field is empty. These descriptors are used to present a field chooser and are kept in memory. Their values are not used to create a profile.</li>
+      <li><strong>Generated names:</strong> candidates remain in the popup until replaced or closed. The extension does not maintain a remote or cloud history.</li>
+    </ul>
+
+    <h2>Information not collected</h2>
+    <p>The extension does not collect, store or transmit passwords, one-time codes, payment-card data, cookies, authentication tokens, browsing history, account credentials, personal contact details or the contents of registration forms. Fields identified as email, password, one-time-code, payment-like, hidden or otherwise sensitive are excluded from insertion.</p>
+
+    <h2>Network activity and remote code</h2>
+    <p>The production extension does not contact a Nickspeare server or any third-party generation service. It does not load remotely hosted JavaScript, WebAssembly, stylesheets or executable code. The evidence atlas, engine, interface and image assets are bundled in the extension package. The extension works offline after installation.</p>
+
+    <h2>Permissions</h2>
+    <ul>
+      <li><strong>activeTab:</strong> grants temporary access to the active page only after the user invokes the extension.</li>
+      <li><strong>scripting:</strong> injects the on-demand field bridge into that active page when the user chooses page insertion.</li>
+      <li><strong>storage:</strong> saves the local versioned preferences described above.</li>
+    </ul>
+    <p>The production extension requests no permanent or optional host permissions and does not run an always-on content script.</p>
+
+    <h2>Retention and deletion</h2>
+    <p>Preferences remain in the browser profile until the extension is removed or the browser profile is deleted. To clear them, open <code>edge://extensions</code> or <code>chrome://extensions</code>, remove Nickspeare, and reinstall it if desired. Removing the extension deletes its local extension storage. Generated names and temporary field descriptors are not retained after the popup closes.</p>
+
+    <h2>Data sharing and sale</h2>
+    <p>Nickspeare does not sell, rent, share or transmit personal data. There is no analytics, telemetry, advertising, account system, cloud sync or developer-operated backend.</p>
+
+    <h2>Children</h2>
+    <p>The extension is a general-purpose writing aid and is not directed at children. It does not knowingly collect personal information from anyone.</p>
+
+    <h2>Licences and source evidence</h2>
+    <p>Extension code is distributed under AGPL-3.0-or-later. Folger-derived corpus evidence retains its CC BY-NC 3.0 attribution and noncommercial conditions. Free distribution does not relicense the corpus or grant unrestricted commercial rights. See <a href="https://github.com/styayur/Nickspeare/blob/main/DATA_SOURCES.md">DATA_SOURCES.md</a> for source attribution.</p>
+
+    <h2>Contact and reports</h2>
+    <p>Public questions and non-sensitive bug reports: <a href="https://github.com/styayur/Nickspeare/issues">GitHub Issues</a>.<br>
+    Security or privacy reports: <a href="https://github.com/styayur/Nickspeare/security/advisories/new">GitHub private vulnerability reporting</a>.</p>
+
+    <h2>Changes</h2>
+    <p>Material policy changes will be published on this page and in the repository before a corresponding extension release. This page is the public Privacy Policy URL used by the Microsoft Edge Add-ons listing.</p>
+
+    <footer>Nickspeare ✳ Made of words, not magic. · <a href="https://github.com/styayur/Nickspeare">Source</a></footer>
+  </main>
+</body>
+</html>

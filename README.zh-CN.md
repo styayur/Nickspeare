@@ -30,7 +30,7 @@
 3. 点击**加载已解压的扩展程序**，选择解压后的文件夹。
 4. 打开工具栏中的 Nickspeare Popup，生成名字后可复制候选，或点击 **Use on page** 明确选择要填入的字段。
 
-即使当前页面没有用户名字段，也可正常生成和复制；普通生成与复制无需网络。扩展只申请 `activeTab`、`scripting` 和 `storage`：页面访问发生在用户点击扩展之后，生成使用内置数据，偏好保存在 `chrome.storage.local`。不收集、不上传页面内容、账户信息或浏览历史。详见[扩展说明](docs/EXTENSION.md)。
+即使当前页面没有用户名字段，也可正常生成和复制；普通生成与复制无需网络。扩展只申请 `activeTab`、`scripting` 和 `storage`：页面访问发生在用户点击扩展之后，生成使用内置数据，偏好保存在 `chrome.storage.local`。不收集、不上传页面内容、账户信息或浏览历史。详见[扩展说明](docs/EXTENSION.md)与[浏览器扩展隐私政策](https://styayur.github.io/Nickspeare/privacy-policy.html)。
 
 从源码构建可加载版本：
 
