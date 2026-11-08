@@ -39,6 +39,19 @@
 
         <ol id="candidates" class="candidate-list" aria-label="Generated usernames"></ol>
         <p id="empty" class="empty" hidden>No names match these constraints yet. Allow numbers, widen the length, relax reserved rules, or choose “No suffix”.</p>
+
+        <section id="field-panel" class="field-panel" aria-labelledby="field-title" hidden>
+          <div class="field-panel-heading">
+            <div>
+              <p class="kicker">Page insertion</p>
+              <h2 id="field-title">Choose a field</h2>
+            </div>
+            <button id="close-fields" class="icon-button" type="button" aria-label="Close field chooser">×</button>
+          </div>
+          <p id="field-context" class="status"></p>
+          <div id="field-list" class="field-list"></div>
+          <p class="form-note">Selecting a field never submits a form. Login and low-confidence fields require an explicit click.</p>
+        </section>
       </section>
 
       <details class="advanced">

@@ -30,11 +30,17 @@ const ui = {
   candidates: byId("candidates"),
   empty: byId("empty"),
   toast: byId("toast"),
+  fieldPanel: byId("field-panel"),
+  closeFields: byId("close-fields"),
+  fieldContext: byId("field-context"),
+  fieldList: byId("field-list"),
 };
 
 let atlas;
 let preferences = migratePreferences(DEFAULT_PREFERENCES);
 let toastTimer;
+let pendingCandidate = null;
+let pendingTabId = null;
 
 function splitTerms(value) {
   return [...new Set(value.split(/[\s,]+/).map((term) => term.trim()).filter(Boolean))];
@@ -131,6 +137,130 @@ function sourceText(source) {
   return source.status;
 }
 
+const FIELD_CATEGORY_LABELS = {
+  registration_username: "Registration username",
+  login_username: "Login username",
+  display_name: "Display nickname",
+  other_text: "Other text field",
+};
+
+function fieldAccessMessage(tab, error) {
+  const url = tab?.url || "";
+  if (/^(chrome|edge|about|devtools):/i.test(url) || url.startsWith("https://chromewebstore.google.com/")) {
+    return "Browser pages, settings and extension stores do not allow page access. Generation and copy still work.";
+  }
+  if (/cannot access|missing host permission|permission/i.test(String(error?.message || error))) {
+    return "This tab is not available to the extension. Open a normal HTTP(S) page, then use the toolbar popup from that tab.";
+  }
+  return "The page could not be inspected. Generation and copy still work; reload the page or try another tab.";
+}
+
+function closeFieldPanel() {
+  ui.fieldPanel.hidden = true;
+  ui.fieldList.replaceChildren();
+  pendingCandidate = null;
+  pendingTabId = null;
+}
+
+function addFieldWarning(container, message) {
+  const warning = document.createElement("span");
+  warning.className = "field-warning";
+  warning.textContent = message;
+  container.append(warning);
+}
+
+async function fillSelectedField(field, candidate, button) {
+  if (!pendingTabId) return;
+  button.disabled = true;
+  ui.fieldContext.textContent = field.isEmpty ? `Writing ${candidate.variant} into the selected field…` : `Replacing the existing text with ${candidate.variant}…`;
+  try {
+    const result = await chrome.tabs.sendMessage(pendingTabId, {
+      type: "nickspeare.fill-field",
+      fieldId: field.id,
+      value: candidate.variant,
+      replaceExisting: !field.isEmpty,
+    });
+    if (!result?.ok) {
+      ui.fieldContext.textContent = result?.message || "The page rejected the insertion. Scan again.";
+      return;
+    }
+    closeFieldPanel();
+    showToast(result.replacedExisting ? `Replaced text with ${candidate.variant}. No form was submitted.` : `Filled ${candidate.variant}. No form was submitted.`);
+  } catch {
+    ui.fieldContext.textContent = "The selected field is no longer reachable. Scan the page again.";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function renderFieldChoices(response, candidate) {
+  ui.fieldList.replaceChildren();
+  if (!response.fields.length) {
+    ui.fieldContext.textContent = "No editable username field was found in the top-level page. Fields inside iframes are not accessed.";
+    return;
+  }
+  ui.fieldContext.textContent = `Choose where to place ${candidate.variant}. The field is filled only after your click.`;
+  for (const field of response.fields) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "field-choice";
+    button.dataset.fieldId = field.id;
+    button.dataset.category = field.category;
+    button.dataset.elementId = field.elementId || "";
+button.setAttribute("aria-label", `${field.isEmpty ? "Fill" : "Replace text in"} ${field.label} with ${candidate.variant}`);
+
+    const line = document.createElement("span");
+    line.className = "field-choice-line";
+    const name = document.createElement("strong");
+    name.textContent = field.label;
+    const category = document.createElement("span");
+    category.className = `confidence ${field.confidence}`;
+    category.textContent = `${FIELD_CATEGORY_LABELS[field.category] || "Text field"} · ${field.confidence} confidence`;
+    line.append(name, category);
+    button.append(line);
+
+    const action = document.createElement("span");
+    action.className = "field-action";
+    action.textContent = field.isEmpty ? "Use this field" : "Replace existing text";
+    button.append(action);
+
+    if (field.category === "login_username") addFieldWarning(button, "Login field: filling it will not sign you in or submit the form.");
+    if (field.confidence === "low") addFieldWarning(button, "Low-confidence match: choose this field only if you intend to use it.");
+    button.addEventListener("click", () => fillSelectedField(field, candidate, button));
+    ui.fieldList.append(button);
+  }
+}
+
+async function beginFieldSelection(candidate, trigger) {
+  pendingCandidate = candidate;
+  pendingTabId = null;
+  ui.fieldPanel.hidden = false;
+  ui.fieldList.replaceChildren();
+  ui.fieldContext.textContent = "Looking for editable username fields in the top-level page…";
+  ui.fieldPanel.scrollIntoView({ block: "nearest" });
+  trigger.disabled = true;
+  let tab = null;
+  try {
+    [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) throw new Error("No active tab is available.");
+    pendingTabId = tab.id;
+    if (tab.url && !/^https?:/i.test(tab.url)) {
+      throw new Error(`Restricted page: ${tab.url}`);
+    }
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ["content/username-detector.js"],
+    });
+    const response = await chrome.tabs.sendMessage(tab.id, { type: "nickspeare.scan-fields" });
+    if (!response?.ok) throw new Error(response?.message || "Field scan failed.");
+    renderFieldChoices(response, candidate);
+  } catch (error) {
+    pendingTabId = null;
+    ui.fieldContext.textContent = fieldAccessMessage(tab, error);
+  } finally {
+    trigger.disabled = false;
+  }
+}
 function candidateRow(candidate) {
   const item = document.createElement("li");
   item.className = "candidate";
@@ -149,7 +279,16 @@ function candidateRow(candidate) {
     if (await copyText(candidate.variant)) showToast(`Copied ${candidate.variant}`);
     else showToast("Clipboard access was refused by the browser.");
   });
-  head.append(name, copy);
+  const fill = document.createElement("button");
+  fill.type = "button";
+  fill.className = "fill";
+  fill.textContent = "Use on page";
+  fill.setAttribute("aria-label", `Find a username field for ${candidate.variant}`);
+  fill.addEventListener("click", () => beginFieldSelection(candidate, fill));
+  const actions = document.createElement("div");
+  actions.className = "candidate-actions";
+  actions.append(copy, fill);
+  head.append(name, actions);
 
   const details = document.createElement("details");
   const summary = document.createElement("summary");
@@ -179,6 +318,7 @@ function candidateRow(candidate) {
 }
 
 function renderOutput(output) {
+  closeFieldPanel();
   ui.candidates.replaceChildren();
   ui.empty.hidden = output.results.length > 0;
   for (const candidate of output.results) ui.candidates.append(candidateRow(candidate));
@@ -241,5 +381,6 @@ for (const element of [controls.seed, controls.minLength, controls.maxLength, co
 }
 ui.generate.addEventListener("click", generate);
 ui.refresh.addEventListener("click", refresh);
+ui.closeFields.addEventListener("click", closeFieldPanel);
 init();
 

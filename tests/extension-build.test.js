@@ -50,3 +50,24 @@ test("extension runtime contains no remote code or eval primitives", () => {
     .join("\n");
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/i);
 });
+
+test("test-only extension grants loopback access without contaminating production", () => {
+  execFileSync(process.execPath, ["scripts/extension-loopback-build.mjs"], { cwd: root, stdio: "pipe" });
+  const production = JSON.parse(readFileSync(path.join(root, "dist", "extension", "manifest.json"), "utf8"));
+  const testBuild = JSON.parse(readFileSync(path.join(root, "dist", "extension-test", "manifest.json"), "utf8"));
+  assert.equal(production.host_permissions, undefined);
+  assert.deepEqual(testBuild.host_permissions, ["http://127.0.0.1/*"]);
+  assert.match(testBuild.name, /test build/);
+  assert.ok(filesUnder(path.join(root, "dist", "extension-test")).some((file) => file.endsWith("username-detector.js")));
+});
+
+test("page bridge avoids destructive DOM and code-evaluation APIs", () => {
+  const content = readFileSync(path.join(root, "extension", "content", "username-detector.js"), "utf8");
+  assert.doesNotMatch(content, /\.innerHTML\s*=/);
+  assert.doesNotMatch(content, /\beval\s*\(/);
+  assert.doesNotMatch(content, /\bnew\s+Function\b/);
+  assert.doesNotMatch(content, /fetch\s*\(/);
+  assert.match(content, /sender\.id !== chrome\.runtime\.id/);
+  assert.match(content, /FIELD_NOT_EMPTY/);
+  assert.match(content, /SENSITIVE_HINTS/);
+});

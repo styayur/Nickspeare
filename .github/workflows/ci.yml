@@ -74,7 +74,7 @@ jobs:
       - run: npm ci
       - run: python -m pip install playwright
       - run: python -m playwright install --with-deps chromium
-      - run: npm run build:extension
+      - run: npm run build:extension:test
       - name: Load the packed extension in Chromium
         run: xvfb-run -a python scripts/test_extension.py --browser chromium --output artifacts/extension-chromium.json
       - uses: actions/upload-artifact@v7
