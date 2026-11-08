@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nickspeare</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <img src="../icons/icon48.png" width="42" height="42" alt="" />
+      <div>
+        <p class="eyebrow">A composing room</p>
+        <h1>Nickspeare</h1>
+      </div>
+      <span class="alpha">α 0.1</span>
+    </header>
+
+    <main>
+      <section class="composer" aria-labelledby="composer-title">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">Local invention</p>
+            <h2 id="composer-title">Compose a username</h2>
+          </div>
+          <button id="refresh" class="icon-button" type="button" title="Generate with a new seed" aria-label="Generate with a new seed">
+            <span aria-hidden="true">↻</span>
+          </button>
+        </div>
+
+        <div class="seed-row">
+          <label for="seed">Seed</label>
+          <input id="seed" type="number" min="0" max="4294967295" step="1" inputmode="numeric" />
+          <button id="generate" class="primary" type="button">Forge names</button>
+        </div>
+
+        <p id="status" class="status" role="status" aria-live="polite">Preparing the press…</p>
+        <p id="constraint-hint" class="hint" hidden></p>
+
+        <ol id="candidates" class="candidate-list" aria-label="Generated usernames"></ol>
+        <p id="empty" class="empty" hidden>No names match these constraints yet. Allow numbers, widen the length, relax reserved rules, or choose “No suffix”.</p>
+      </section>
+
+      <details class="advanced">
+        <summary>Advanced controls</summary>
+        <div class="form-grid">
+          <label>Rule
+            <select id="rule">
+              <option value="rogue_to_king">Rogue to king</option>
+              <option value="markov_coin">Character Markov</option>
+              <option value="quote_splice">Quote splice</option>
+              <option value="archaic_coinage">Archaic coinage</option>
+            </select>
+          </label>
+          <label>Letter case
+            <select id="caseStyle">
+              <option value="title">Title case</option>
+              <option value="lower">lowercase</option>
+              <option value="upper">UPPERCASE</option>
+            </select>
+          </label>
+          <label>Inscription
+            <select id="suffix">
+              <option value="agincourt">Agincourt 1415</option>
+              <option value="coronation">Coronation 1413</option>
+              <option value="none">No suffix</option>
+              <option value="number">Numeric ornament</option>
+            </select>
+          </label>
+          <label>Candidates
+            <select id="candidateCount">
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+          </label>
+          <label>Minimum length
+            <input id="minLength" type="number" min="1" max="64" step="1" />
+          </label>
+          <label>Maximum length
+            <input id="maxLength" type="number" min="1" max="64" step="1" />
+          </label>
+        </div>
+        <div class="checks">
+          <label><input id="allowNumbers" type="checkbox" /> Allow numbers</label>
+          <label><input id="allowUnderscore" type="checkbox" /> Allow underscores</label>
+        </div>
+        <label class="wide">Reserved words or handles
+          <textarea id="reservedWords" rows="2" placeholder="admin, support, king"></textarea>
+        </label>
+        <div class="form-grid">
+          <label>Forbidden prefixes
+            <textarea id="forbiddenPrefixes" rows="2" placeholder="official, real"></textarea>
+          </label>
+          <label>Forbidden suffixes
+            <textarea id="forbiddenSuffixes" rows="2" placeholder="admin, staff"></textarea>
+          </label>
+        </div>
+        <p class="form-note">Rules filter and regenerate names. They never truncate a candidate. Username availability is not checked against any website.</p>
+      </details>
+    </main>
+
+    <footer>
+      <span>Made of words, not magic.</span>
+      <a href="https://github.com/styayur/Nickspeare" target="_blank" rel="noopener">Source</a>
+      <a href="licenses/DATA_SOURCES.md" target="_blank">Data rights</a>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

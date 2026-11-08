@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "sync:core": "node scripts/sync-js-core.mjs"
+    "sync:core": "node scripts/sync-js-core.mjs",
+    "build:extension": "node scripts/build-extension.mjs",
+    "test:extension": "npm run build:extension && python scripts/test_extension.py"
   },
   "engines": {
     "node": ">=20"
