@@ -183,4 +183,4 @@ def capture() -> dict:
 
 
 if __name__ == "__main__":
-    print(json.dumps(capture(), indent=2))
+    sys.stdout.write(json.dumps(capture(), indent=2) + "\n")

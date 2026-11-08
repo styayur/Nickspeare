@@ -157,10 +157,19 @@ def generate(args) -> dict:
         edge = {"status": "NOT_RUN", "browser": "msedge", "version": None, "reason": "No Edge evidence supplied."}
     audit = read_json(args.audit)
     package = read_json(args.package)
-    extension_version = package.get("version") or "0.1.0-alpha.2"
-    manifest_version = package.get("manifestVersion") or "0.1.1"
+    extension_version = str(package.get("version") or "")
+    manifest_version = str(package.get("manifestVersion") or "")
     commit = args.commit or git_commit()
     blockers: list[str] = []
+    manifest = read_json(ROOT / "extension" / "manifest.json")
+    if not extension_version:
+        blockers.append("Package evidence omits the extension version")
+    if not manifest_version:
+        blockers.append("Package evidence omits the manifest version")
+    if extension_version and manifest.get("version_name") != extension_version:
+        blockers.append("Package version does not match extension/manifest.json version_name")
+    if manifest_version and manifest.get("version") != manifest_version:
+        blockers.append("Package manifestVersion does not match extension/manifest.json version")
 
     if chromium.get("status") != "PASS":
         blockers.append("Chromium extension acceptance did not pass")
