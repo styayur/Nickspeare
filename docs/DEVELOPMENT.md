@@ -36,7 +36,11 @@ The R pass uses shared exclusions and speaker cohorts and the same add-half smoo
 | `nickspeare/data/provenance.json` | Packaged evidence atlas |
 | `scripts/build_atlas.py` | Reproducible source-evidence build |
 | `R/` | RStudio setup and feature extraction |
-| `docs/` | Static UI, browser engine and shared atlas |
+| `packages/core/` | Shared browser naming engine, username policy and preference migration |
+| `docs/` | Static UI, browser engine mirror and shared atlas |
 | `tests/` | Python and JavaScript regression tests |
 
 Keep code and data rights distinct: [Sources and rights](../DATA_SOURCES.md) records the Folger edition and optional inputs. Follow [Contributing](../CONTRIBUTING.md) and [Security](../SECURITY.md). Release maintainers use the [release workflow](../.github/workflows/release.yml); a source version change alone does not publish a package.
+## Browser core
+
+The browser engine is canonical in `packages/core/engine.js`; `docs/engine.js` is a byte-identical mirror so the existing Pages server can stay rooted at `docs/`. After changing the engine, run `npm run sync:core` and `npm test`. Username policy and preference migration live beside it in `packages/core/`. The extension build copies this shared core rather than maintaining a second naming implementation.
