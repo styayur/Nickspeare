@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "browser": "msedge",
+  "screenshots": [
+    "store/edge/screenshots/01-generate.png",
+    "store/edge/screenshots/02-shape.png",
+    "store/edge/screenshots/03-fill-field.png"
+  ],
+  "size": [
+    1280,
+    800
+  ],
+  "source": "Real packaged popup and public review fixture loaded in Microsoft Edge"
+}

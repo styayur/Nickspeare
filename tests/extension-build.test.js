@@ -19,8 +19,11 @@ test("extension build is standalone, versioned and permission-minimal", () => {
   const output = path.join(root, "dist", "extension");
   const manifest = JSON.parse(readFileSync(path.join(output, "manifest.json"), "utf8"));
   assert.equal(manifest.manifest_version, 3);
-  assert.equal(manifest.version, "0.1.0");
-  assert.equal(manifest.version_name, "0.1.0-alpha.1");
+  assert.equal(manifest.version, "0.1.1");
+  assert.equal(manifest.version_name, "0.1.0-alpha.2");
+  assert.equal(manifest.default_locale, "en");
+  assert.equal(manifest.name, "__MSG_extensionName__");
+  assert.equal(manifest.description, "__MSG_extensionDescription__");
   assert.deepEqual(manifest.permissions.sort(), ["activeTab", "scripting", "storage"]);
   assert.equal(manifest.host_permissions, undefined);
   assert.equal(manifest.optional_host_permissions, undefined);
@@ -32,6 +35,8 @@ test("extension build is standalone, versioned and permission-minimal", () => {
   assert.ok(names.includes("licenses/LICENSE"));
   assert.ok(names.includes("licenses/DATA_SOURCES.md"));
   assert.ok(names.includes("SOURCE.md"));
+  assert.ok(names.includes("_locales/en/messages.json"));
+  assert.ok(names.includes("_locales/zh_CN/messages.json"));
   assert.ok(names.includes("popup/popup.js"));
   assert.ok(!names.some((name) => /(^|\/)(node_modules|\.git|tests?|coverage)(\/|$)/.test(name)));
 });

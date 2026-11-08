@@ -1,12 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "Nickspeare — Shakespearean Username Generator",
+  "name": "__MSG_extensionName__",
   "short_name": "Nickspeare",
-  "version": "0.1.0",
-  "version_name": "0.1.0-alpha.1",
-  "description": "Compose source-linked Shakespearean usernames locally in your browser.",
+  "version": "0.1.1",
+  "version_name": "0.1.0-alpha.2",
+  "description": "__MSG_extensionDescription__",
   "minimum_chrome_version": "111",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
   "action": {
     "default_title": "Compose a Nickspeare username",
     "default_popup": "popup/popup.html",
@@ -30,5 +34,6 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
-  "incognito": "not_allowed"
+  "incognito": "not_allowed",
+  "default_locale": "en"
 }

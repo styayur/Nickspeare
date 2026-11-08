@@ -119,8 +119,15 @@ def check_popup_and_permission_denial(playwright, browser_name: str, base_url: s
 
             manifest = json.loads(extension_root.joinpath("manifest.json").read_text(encoding="utf-8"))
             assert manifest["manifest_version"] == 3
-            assert manifest["version"] == "0.1.0"
-            assert manifest["version_name"] == "0.1.0-alpha.1"
+            assert manifest["version"] == "0.1.1"
+            assert manifest["version_name"] == "0.1.0-alpha.2"
+            assert manifest["default_locale"] == "en"
+            assert manifest["name"] == "__MSG_extensionName__"
+            assert manifest["description"] == "__MSG_extensionDescription__"
+            for locale in ("en", "zh_CN"):
+                messages = json.loads(extension_root.joinpath("_locales", locale, "messages.json").read_text(encoding="utf-8"))
+                assert messages["extensionName"]["message"]
+                assert messages["extensionDescription"]["message"]
             assert set(manifest.get("permissions", [])) == {"activeTab", "scripting", "storage"}
             assert "host_permissions" not in manifest
             assert "optional_host_permissions" not in manifest

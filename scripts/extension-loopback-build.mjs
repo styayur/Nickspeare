@@ -15,7 +15,7 @@ execFileSync(process.execPath, ["scripts/build-extension.mjs", "--out", output],
 });
 const manifestPath = path.join(output, "manifest.json");
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-manifest.name = `${manifest.name} (test build)`;
+manifest.name = "Nickspeare (test build)";
 manifest.host_permissions = ["http://127.0.0.1/*"];
 await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 process.stdout.write(`Patched loopback-only test permissions at ${output}\n`);

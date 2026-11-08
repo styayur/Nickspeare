@@ -63,7 +63,32 @@ def audit(root: Path) -> dict:
         }
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     check(checks, "manifestV3", manifest.get("manifest_version") == 3, "Manifest V3 is required.", blockers)
-    check(checks, "version", manifest.get("version") == "0.1.0" and manifest.get("version_name") == "0.1.0-alpha.1", "Extension version identity is 0.1.0 / 0.1.0-alpha.1.", blockers)
+    check(checks, "version", manifest.get("version") == "0.1.1" and manifest.get("version_name") == "0.1.0-alpha.2", "Extension version identity is 0.1.1 / 0.1.0-alpha.2.", blockers)
+    default_locale = manifest.get("default_locale")
+    locale_files = [root / "_locales" / "en" / "messages.json", root / "_locales" / "zh_CN" / "messages.json"]
+    locale_messages = {}
+    for locale_file in locale_files:
+        try:
+            locale_messages[locale_file] = json.loads(locale_file.read_text(encoding="utf-8"))
+        except Exception:
+            locale_messages[locale_file] = {}
+    localized_identity = (
+        default_locale == "en"
+        and manifest.get("name") == "__MSG_extensionName__"
+        and manifest.get("description") == "__MSG_extensionDescription__"
+        and all(
+            (messages.get("extensionName") or {}).get("message")
+            and (messages.get("extensionDescription") or {}).get("message")
+            for messages in locale_messages.values()
+        )
+    )
+    check(
+        checks,
+        "localizedStoreIdentity",
+        localized_identity,
+        "Manifest name/description use en/zh_CN localization resources with default_locale=en.",
+        blockers,
+    )
     permissions = set(manifest.get("permissions", []))
     check(checks, "permissionsMinimal", permissions == ALLOWED_PERMISSIONS, f"Permissions: {sorted(permissions)}", blockers)
     check(checks, "noHostPermissions", "host_permissions" not in manifest, "Production has no permanent host permissions.", blockers)

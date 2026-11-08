@@ -1,10 +1,10 @@
-# Browser extension v0.1.0-alpha.1
+# Browser extension v0.1.0-alpha.2
 
 Nickspeare for Chromium and Microsoft Edge is a Manifest V3 popup that composes usernames from the bundled evidence atlas. It is an independent pre-release from the Python package and the GitHub Pages app.
 
 ## Install
 
-Download `nickspeare-extension-chromium-v0.1.0-alpha.1.zip` from the GitHub pre-release, extract it, open `chrome://extensions` or `edge://extensions`, enable Developer mode, and load the extracted folder as an unpacked extension. `manifest.json` must be at the folder root.
+Download `nickspeare-extension-chromium-v0.1.0-alpha.2.zip` from the GitHub pre-release, extract it, open `chrome://extensions` or `edge://extensions`, enable Developer mode, and load the extracted folder as an unpacked extension. `manifest.json` must be at the folder root.
 
 To build locally:
 
@@ -25,7 +25,7 @@ The release manifest requests only:
 | `activeTab` | Temporarily access the active page after the user clicks the extension. |
 | `scripting` | Inject the on-demand field bridge into that active page. |
 
-There are no permanent or optional host permissions in v0.1. The extension does not declare content scripts that run automatically. Page access is requested by an explicit **Use on page** action after opening the popup.
+There are no permanent or optional host permissions in v0.1. The extension does not declare content scripts that run automatically. Page access is requested by an explicit **Use on page** action after opening the popup. The full public policy is at [Nickspeare Browser Extension Privacy Policy](https://styayur.github.io/Nickspeare/privacy-policy.html).
 
 Generated names, selected candidates and page field descriptors remain in memory. Preferences are the only persisted data. The extension has no account, telemetry, analytics, advertising, remote generation API or cloud sync. It does not read or transmit passwords, OTPs, payment data, cookies, tokens, account data or browsing history.
 

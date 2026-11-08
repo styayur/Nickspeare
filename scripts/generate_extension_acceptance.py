@@ -157,6 +157,8 @@ def generate(args) -> dict:
         edge = {"status": "NOT_RUN", "browser": "msedge", "version": None, "reason": "No Edge evidence supplied."}
     audit = read_json(args.audit)
     package = read_json(args.package)
+    extension_version = package.get("version") or "0.1.0-alpha.2"
+    manifest_version = package.get("manifestVersion") or "0.1.1"
     commit = args.commit or git_commit()
     blockers: list[str] = []
 
@@ -233,8 +235,8 @@ def generate(args) -> dict:
         "schemaVersion": 1,
         "project": "Nickspeare",
         "component": "browser-extension",
-        "version": "0.1.0-alpha.1",
-        "manifestVersion": "0.1.0",
+        "version": extension_version,
+        "manifestVersion": manifest_version,
         "commit": commit or None,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "overallStatus": overall,
@@ -264,7 +266,7 @@ def generate(args) -> dict:
             "chromium": chromium,
             "msedge": edge,
             "googleChromeBranded": {"status": "NOT_RUN", "reason": "Google Chrome branded builds block CLI extension loading; Chromium MV3 engine is verified instead."},
-            "firefox": {"status": "NOT_APPLICABLE", "reason": "Firefox retention is a design goal; v0.1.0-alpha.1 targets Chromium and Edge."},
+            "firefox": {"status": "NOT_APPLICABLE", "reason": f"Firefox retention is a design goal; {extension_version} targets Chromium and Edge."},
         },
         "licenses": {
             "status": license_status,
@@ -275,7 +277,7 @@ def generate(args) -> dict:
             "notice": "Third-party Folger-derived evidence remains noncommercial; the AGPL code license does not relicense it.",
         },
         "release": {
-            "tag": "extension-v0.1.0-alpha.1",
+            "tag": f"extension-v{extension_version}",
             "prerelease": True,
             "archive": package.get("archive"),
             "archiveSha256": package.get("sha256"),
