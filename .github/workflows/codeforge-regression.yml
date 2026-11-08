@@ -2,6 +2,8 @@ name: CodeForge regression
 
 on:
   pull_request:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -16,38 +18,44 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
-      - name: Expose pull request diff to CodeForge --changed
+      - name: Expose exact-head diff to CodeForge --changed
         shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          git fetch --no-tags origin "${{ github.event.pull_request.base.sha }}"
-          git reset --soft "${{ github.event.pull_request.base.sha }}"
+          base="$BASE_SHA"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            base="$(git rev-parse HEAD^)"
+          fi
+          git fetch --no-tags origin "$base"
+          git reset --soft "$base"
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable branch
 
       - name: Cache CodeForge v0.2.1 build inputs
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: codeforge-v0.2.1-${{ runner.os }}-${{ runner.arch }}
+          key: codeforge-v0.2.1-5a41480-${{ runner.os }}-${{ runner.arch }}
 
       - name: Install CodeForge Engine v0.2.1
         shell: bash
         run: |
           if ! command -v codeforge >/dev/null 2>&1 || [ "$(codeforge --version)" != "codeforge 0.2.1" ]; then
-            cargo install --git https://github.com/styayur/codeforge-engine --tag v0.2.1 --locked codeforge-cli
+            cargo install --git https://github.com/styayur/codeforge-engine --rev 5a41480b6ffa4e6485faaf36690ae3719a6a4a8b --locked codeforge-cli
           fi
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
       - name: Install package and build tooling
-        run: python -m pip install -e . build
+        run: python -m pip install -e . build==1.4.4
       - name: Run CodeForge regression gate
         shell: bash
         run: |
@@ -60,7 +68,7 @@ jobs:
 
       - name: Upload CodeForge SARIF
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: codeforge-sarif
           path: codeforge.sarif

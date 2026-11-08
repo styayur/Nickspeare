@@ -31,6 +31,7 @@ test("extension build is standalone, versioned and permission-minimal", () => {
   assert.ok(names.includes("core/atlas.json"));
   assert.ok(names.includes("licenses/LICENSE"));
   assert.ok(names.includes("licenses/DATA_SOURCES.md"));
+  assert.ok(names.includes("SOURCE.md"));
   assert.ok(names.includes("popup/popup.js"));
   assert.ok(!names.some((name) => /(^|\/)(node_modules|\.git|tests?|coverage)(\/|$)/.test(name)));
 });
