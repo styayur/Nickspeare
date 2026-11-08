@@ -30,7 +30,7 @@ Download the ZIP asset from the [extension pre-release](https://github.com/styay
 3. Choose **Load unpacked** and select the extracted folder.
 4. Open the Nickspeare toolbar popup, forge names, then copy a candidate or choose **Use on page** to select a field explicitly.
 
-The popup works without a page field and without a network connection. It requests `activeTab`, `scripting` and `storage` only: page access occurs after the toolbar action, generation runs from bundled data, and preferences stay in `chrome.storage.local`. No page contents, account data or browsing history are collected or transmitted. See [Extension details](docs/EXTENSION.md).
+The popup works without a page field and without a network connection. It requests `activeTab`, `scripting` and `storage` only: page access occurs after the toolbar action, generation runs from bundled data, and preferences stay in `chrome.storage.local`. No page contents, account data or browsing history are collected or transmitted. See [Extension details](docs/EXTENSION.md) and the [browser extension Privacy Policy](https://styayur.github.io/Nickspeare/privacy-policy.html).
 
 To build the unpacked extension from source:
 

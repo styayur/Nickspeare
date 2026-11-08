@@ -46,6 +46,10 @@ There are no permanent or optional host permissions. The extension does not coll
 - No remote availability check and no form submission.
 - Alpha software: preferences are local and the generated-name policy remains heuristic.
 
+## Privacy and data rights
+
+The extension processes generation locally. Preferences stay in `chrome.storage.local`; page field metadata is read only after user action and is not sent to a server. Read the full [Privacy Policy](https://styayur.github.io/Nickspeare/privacy-policy.html).
+
 ## Licences and data rights
 
 Extension code is **AGPL-3.0-or-later**. Folger-derived evidence remains subject to **CC BY-NC 3.0** attribution and noncommercial conditions; the code licence does not relicense the corpus derivatives. The ZIP includes `licenses/LICENSE`, `licenses/DATA_SOURCES.md` and `licenses/SECURITY.md`. This pre-release is not offered as an unrestricted commercial dataset or naming service.
