@@ -393,7 +393,7 @@ def validate_evidence(args, extension_acceptance: dict, submission: dict) -> str
 
 
 def main() -> int:
-    print("CANCELLED: Microsoft Edge Add-ons automated upload and submission", file=sys.stderr)
+    sys.stderr.write("CANCELLED: Microsoft Edge Add-ons automated upload and submission\n")
     return 2
 
 
