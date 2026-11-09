@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Upload and submit an existing Microsoft Edge Add-ons product update (API v1.1)."""
+"""Historical Edge API evidence helpers. Production publishing is CANCELLED."""
 
 from __future__ import annotations
 
@@ -86,16 +86,7 @@ def urllib_transport(
     data: Optional[bytes],
     timeout: float,
 ) -> HttpResponse:
-    request = urllib.request.Request(url, data=data, method=method, headers=dict(headers))
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return HttpResponse(response.status, dict(response.headers.items()), response.read())
-    except urllib.error.HTTPError as error:
-        return HttpResponse(error.code, dict(error.headers.items()), error.read())
-    except (urllib.error.URLError, TimeoutError, OSError) as error:
-        raise EdgePublishError(
-            f"Network failure calling Edge Add-ons API: {type(error).__name__}: {error}"
-        ) from error
+    raise EdgePublishError("CANCELLED: Edge store network transport is disabled")
 
 
 class EdgePublisher:
@@ -402,96 +393,8 @@ def validate_evidence(args, extension_acceptance: dict, submission: dict) -> str
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
-    parser.add_argument("--product-id", required=True)
-    parser.add_argument("--client-id", required=True)
-    parser.add_argument("--package", required=True, type=Path)
-    parser.add_argument("--expected-sha256", required=True)
-    parser.add_argument("--version", required=True)
-    parser.add_argument("--privacy-policy-url", required=True)
-    parser.add_argument("--notes-file", type=Path, required=True)
-    parser.add_argument("--extension-acceptance", type=Path, required=True)
-    parser.add_argument("--github-release-tag", required=True)
-    parser.add_argument("--github-release-url", required=True)
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--endpoint", default=DEFAULT_ENDPOINT)
-    parser.add_argument("--timeout", type=float, default=900)
-    parser.add_argument("--poll-interval", type=float, default=10)
-    parser.add_argument("--max-retries", type=int, default=5)
-    args = parser.parse_args()
-
-    package_sha = sha256_file(args.package)
-    if package_sha.lower() != args.expected_sha256.lower():
-        raise EdgePublishError(
-            f"Package SHA-256 mismatch: {package_sha} != {args.expected_sha256}"
-        )
-    extension_acceptance = json.loads(
-        args.extension_acceptance.read_text(encoding="utf-8")
-    )
-    submission = json.loads(
-        (Path(args.root) / "store/edge/submission.json").read_text(encoding="utf-8")
-    )
-    manifest_version = validate_evidence(args, extension_acceptance, submission)
-    listing = store_listing_status(Path(args.root).resolve(), submission)
-    if listing["status"] != "PASS":
-        raise EdgePublishError(f"Store listing incomplete: {listing['blockers']}")
-    api_key = os.environ.get("EDGE_API_KEY")
-    if not api_key:
-        raise EdgePublishError("EDGE_API_KEY is not configured")
-    publisher = EdgePublisher(
-        args.product_id,
-        args.client_id,
-        api_key,
-        endpoint=args.endpoint,
-        timeout=args.timeout,
-        poll_interval=args.poll_interval,
-        max_retries=args.max_retries,
-    )
-    upload_operation, upload_result = publisher.upload(args.package)
-    publish_operation, publish_result = publisher.publish(load_notes(args.notes_file))
-    publish_message = str(publish_result.get("message") or "")
-    match = SUBMISSION_ID_RE.search(publish_message)
-    submission_report = {
-        "uploadOperationId": upload_operation,
-        "uploadStatus": upload_result.get("status"),
-        "uploadMessage": upload_result.get("message"),
-        "operationId": publish_operation,
-        "publishStatus": publish_result.get("status"),
-        "publishMessage": publish_message,
-        "submissionId": match.group(1) if match else None,
-        "submittedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "officialStatus": "SUBMITTED"
-        if publish_result.get("status") == SUCCESS_STATUS
-        else "FAILED",
-        "certificationStatus": "NOT_YET_KNOWN",
-        "publicListingUrl": None,
-    }
-    report = build_report(
-        args,
-        manifest_version,
-        package_sha,
-        extension_acceptance,
-        submission_report,
-    )
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    sys.stdout.write(
-        json.dumps(
-            {
-                "officialStoreStatus": report["officialStoreStatus"],
-                "submissionId": submission_report["submissionId"],
-                "operationId": publish_operation,
-                "publicListingUrl": report["publicListingUrl"],
-                "blockers": report["blockers"],
-            },
-            indent=2,
-        )
-        + "\n"
-    )
-    return 0 if not report["blockers"] else 1
+    print("CANCELLED: Microsoft Edge Add-ons automated upload and submission", file=sys.stderr)
+    return 2
 
 
 if __name__ == "__main__":

@@ -226,25 +226,29 @@ class EdgePublishTests(unittest.TestCase):
             with self.assertRaises(edge_publish.EdgePublishError):
                 edge_publish.validate_evidence(args, acceptance, submission)
 
-    def test_workflow_is_environment_protected_and_never_clobbers_release_assets(self):
-        workflow = (ROOT / ".github/workflows/edge-publish.yml").read_text(encoding="utf-8")
-        self.assertIn("workflow_run:", workflow)
-        self.assertIn("Release browser extension", workflow)
-        self.assertIn("environment: edge-production", workflow)
-        self.assertIn("actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", workflow)
-        self.assertIn("actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0", workflow)
-        self.assertNotIn("ref: ${{ github.event.inputs.tag", workflow)
-        self.assertIn("compare/main...$RELEASE_SHA", workflow)
-        self.assertIn("Release acceptance commit does not match the release tag", workflow)
-        self.assertIn("edge-publish-intent.json", workflow)
-        self.assertIn("edge-store-acceptance.json", workflow)
-        self.assertIn("EDGE_API_KEY", workflow)
-        self.assertIn("gh release upload", workflow)
-        self.assertNotIn("--clobber", workflow)
-        self.assertNotIn("--admin", workflow)
-        self.assertNotIn("force-merge", workflow)
-        self.assertIn("SUBMITTED", workflow)
-        self.assertIn("does not mean Microsoft has approved or published", workflow)
+    def test_store_publishing_is_cancelled_and_network_is_disabled(self):
+        from unittest.mock import patch
+        import subprocess
+        self.assertFalse((ROOT / ".github/workflows/edge-publish.yml").exists())
+        with patch("urllib.request.urlopen") as request:
+            with self.assertRaisesRegex(edge_publish.EdgePublishError, "CANCELLED"):
+                edge_publish.urllib_transport("POST", edge_publish.DEFAULT_ENDPOINT, {}, b"", 1)
+            request.assert_not_called()
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/edge_publish.py")],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("CANCELLED", result.stderr)
+        for path in (ROOT / ".github/workflows").glob("*.y*ml"):
+            text = path.read_text(encoding="utf-8")
+            for forbidden in ("edge_publish.py", "edge-production", "EDGE_API_KEY",
+                              "api.addons.microsoftedge.microsoft.com"):
+                self.assertNotIn(forbidden, text, str(path))
+
+    def test_github_release_and_extension_paths_remain(self):
+        for name in ("ci.yml", "release.yml", "extension-release.yml"):
+            self.assertTrue((ROOT / ".github/workflows" / name).exists(), name)
+        self.assertTrue((ROOT / "extension/manifest.json").exists())
+        self.assertTrue((ROOT / "scripts/package_extension.py").exists())
 
     def test_submitted_report_never_claims_published(self):
         with tempfile.TemporaryDirectory() as temporary:
