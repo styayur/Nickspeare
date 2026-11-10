@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nickspeare reviewer form fixture</title>
+  <style>
+    :root { --paper:#f3ecdc; --ink:#1e1b16; --navy:#0f172a; --red:#7d2d2a; --rule:#cfc2aa; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; color:var(--ink); background:var(--paper); font:16px/1.5 Georgia,serif; }
+    main { width:min(680px,calc(100% - 32px)); padding:34px; border:1px solid var(--rule); background:#fbf6ea; box-shadow:0 18px 50px #1e1b1618; }
+    header { padding:22px 26px; color:#f8efd9; background:var(--navy); margin:-34px -34px 28px; border-bottom:4px double #b07b20; }
+    h1 { margin:0; font-size:32px; letter-spacing:-.04em; }
+    p { color:#665f54; }
+    label { display:block; margin:15px 0 6px; font-weight:700; }
+    input { width:100%; padding:10px; border:1px solid var(--rule); background:#fffaf0; font:inherit; }
+    button { margin-top:22px; padding:10px 18px; border:1px solid #5d1e1c; color:#fff8e8; background:var(--red); font:700 14px Georgia,serif; cursor:pointer; }
+    .note { margin-top:24px; padding:12px; border-left:3px solid #b07b20; font-size:14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header><h1>Nickspeare reviewer fixture</h1></header>
+    <p>This inert local form is provided solely to exercise the extension's on-demand field chooser. It does not send or persist data.</p>
+    <form onsubmit="event.preventDefault(); document.querySelector('#result').textContent='Form submission prevented.';">
+      <label for="register-username">Registration username</label>
+      <input id="register-username" name="username" autocomplete="username" placeholder="Choose a username">
+      <label for="login-username">Login username (pre-filled)</label>
+      <input id="login-username" name="login" autocomplete="username" value="existing_user">
+      <label for="display-name">Display name</label>
+      <input id="display-name" name="display_name" autocomplete="nickname" placeholder="Display name">
+      <label for="register-email">Email (excluded by extension)</label>
+      <input id="register-email" name="email" type="email" autocomplete="email" placeholder="reviewer@example.test">
+      <label for="register-password">Password (excluded by extension)</label>
+      <input id="register-password" name="password" type="password" autocomplete="new-password">
+      <button type="submit">Test submit (blocked)</button>
+      <p id="result" class="note" role="status">No submission has occurred.</p>
+    </form>
+  </main>
+</body>
+</html>

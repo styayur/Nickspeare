@@ -36,7 +36,21 @@ The R pass uses shared exclusions and speaker cohorts and the same add-half smoo
 | `nickspeare/data/provenance.json` | Packaged evidence atlas |
 | `scripts/build_atlas.py` | Reproducible source-evidence build |
 | `R/` | RStudio setup and feature extraction |
-| `docs/` | Static UI, browser engine and shared atlas |
-| `tests/` | Python and JavaScript regression tests |
+| `packages/core/` | Shared browser naming engine, username policy and preference migration |
+| `extension/` | Manifest V3 popup, service worker, on-demand field bridge and icons |
+| `scripts/build-extension.mjs` | Assemble the standalone extension runtime under `dist/extension` |
+| `scripts/audit_extension.py` | Fail-closed permission, code, licence and package audit |
+| `scripts/package_extension.py` | Build and verify the installable ZIP |
+| `docs/` | Static UI, browser engine mirror, extension notes and shared atlas |
+| `tests/` | Python, JavaScript, extension-policy and browser-fixture regression tests |
 
 Keep code and data rights distinct: [Sources and rights](../DATA_SOURCES.md) records the Folger edition and optional inputs. Follow [Contributing](../CONTRIBUTING.md) and [Security](../SECURITY.md). Release maintainers use the [release workflow](../.github/workflows/release.yml); a source version change alone does not publish a package.
+## Browser core
+
+The browser engine is canonical in `packages/core/engine.js`; `docs/engine.js` is a byte-identical mirror so the existing Pages server can stay rooted at `docs/`. After changing the engine, run `npm run sync:core` and `npm test`. Username policy and preference migration live beside it in `packages/core/`. The extension build copies this shared core rather than maintaining a second naming implementation.
+
+## Browser extension
+
+The release build is assembled with `npm ci && npm run build:extension`; the runtime is `dist/extension`, and `dist/extension-test` is a loopback-only test build that never ships. Use `npm run test:extension` for the real Chromium suite. On Windows add `python scripts/test_extension.py --browser msedge` for actual Edge coverage. Linux extension tests require a headed browser session under `xvfb-run -a`.
+
+Every extension change must preserve the production permission set (`activeTab`, `scripting`, `storage`), the absence of permanent host permissions, the on-demand content-script injection boundary, sensitive-field exclusions, non-empty protection and no-auto-submit behavior. Run `npm run test:coverage`, `npm run audit:extension` and `npm run package:extension` before release. See [Browser extension](EXTENSION.md) for architecture and limitations.

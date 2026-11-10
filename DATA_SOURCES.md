@@ -35,3 +35,12 @@ does not claim to index them. Hyperbard is a related research resource, not an
 input to the shipped atlas. Markov generation is inspired by
 [markov_poem](https://github.com/devjason/markov_poem) and
 [namemaker](https://github.com/Rickmsd/namemaker).
+
+## Browser extension distribution
+
+The browser extension ZIP bundles the same derived `atlas.json` used by the
+Pages app. The CC BY-NC 3.0 attribution and noncommercial conditions recorded
+above continue to apply to those derived data. The ZIP therefore includes
+`licenses/LICENSE`, `licenses/DATA_SOURCES.md` and `licenses/SECURITY.md`, and
+the release notes link to the corresponding source commit. Do not describe the
+extension or its bundled data as available for unrestricted commercial use.

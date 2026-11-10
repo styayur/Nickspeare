@@ -4,32 +4,32 @@ permissions:
   contents: read
 jobs:
   python:
-    # Python 3.9 builds are available on 24.04, not the 26.04 latest image.
-    runs-on: ubuntu-24.04
+    # Keep the Python compatibility matrix on an image with reliable 3.9 tooling.
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python: ['3.9', '3.12', '3.14']
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '${{ matrix.python }}'
-      - run: python -m pip install -e . build
+      - run: python -m pip install -e . build==1.4.4
       - run: python -m unittest discover -s tests -v
       - run: python -m build
       - run: python -m nickspeare generate --rule markov_epithet --seed 42 --json
   browser:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
       - run: npm test
-      - run: python -m pip install playwright
+      - run: python -m pip install playwright==1.63.0
       - run: python -m playwright install --with-deps chromium
       - name: Browser integration
         run: |
@@ -38,8 +38,49 @@ jobs:
           trap 'kill "$server"' EXIT
           python -c "import urllib.request,time; time.sleep(2); urllib.request.urlopen('http://127.0.0.1:8765')"
           python scripts/check_browser.py
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: browser-screenshots
           path: work/screenshots
+
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+      - run: npm test
+      - run: python -m pip install build==1.4.4
+      - run: python -m build
+
+  extension:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: python -m pip install playwright==1.63.0
+      - run: python -m playwright install --with-deps chromium
+      - run: npm run build:extension:test
+      - name: Load the packed extension in Chromium
+        run: xvfb-run -a python scripts/test_extension.py --browser chromium --output artifacts/extension-chromium.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: extension-popup-evidence
+          path: |
+            artifacts/extension-chromium.json
+            work/screenshots

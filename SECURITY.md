@@ -17,3 +17,12 @@ Include the affected version, Python/browser environment, reproduction command, 
 Relevant issues include unsafe handling of custom corpus paths, XML/JSON parsing, browser URL/state handling, package-data substitution, dependency compromise, and accidental disclosure of source files or local paths.
 
 Nickspeare has no runtime service, account system, analytics, or generation API. Corpus rights are separate from the AGPL application license; see [DATA_SOURCES.md](DATA_SOURCES.md).
+
+## Browser extension scope
+
+Browser-extension reports may include permission escalation, remote code,
+message-origin validation, unsafe DOM insertion, field-detection false
+positives involving password/email/OTP/payment fields, accidental form
+submission, page-data exfiltration, ZIP contamination, or misleading release
+claims. Do not include page contents, account values or private browsing data in
+a report. Generated names and browser preferences are not secrets.

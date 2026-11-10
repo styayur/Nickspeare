@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "status": "DRAFT_PREPARED",
+  "productName": "Nickspeare — Shakespearean Username Generator",
+  "shortName": "Nickspeare",
+  "version": "0.1.0-alpha.2",
+  "manifestVersion": "0.1.1",
+  "tag": "extension-v0.1.0-alpha.2",
+  "category": "Productivity",
+  "visibility": "Public",
+  "markets": "All supported Microsoft Edge Add-ons markets",
+  "privacyPolicyUrl": "https://styayur.github.io/Nickspeare/privacy-policy.html",
+  "supportUrl": "https://github.com/styayur/Nickspeare/issues",
+  "securityUrl": "https://github.com/styayur/Nickspeare/security/advisories/new",
+  "reviewFixtureUrl": "https://styayur.github.io/Nickspeare/fixtures/edge-review.html",
+  "languages": ["en-US", "zh-CN"],
+  "listing": {
+    "en-US": "store/edge/listing.en-US.md",
+    "zh-CN": "store/edge/listing.zh-CN.md"
+  },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "hostPermissions": [],
+  "optionalHostPermissions": [],
+  "package": {
+    "file": "nickspeare-extension-chromium-v0.1.0-alpha.2.zip",
+    "sha256": null,
+    "status": "PENDING_FINAL_BUILD"
+  },
+  "assets": {
+    "icon": "store/edge/assets/store-icon-300.png",
+    "iconSize": [300, 300],
+    "screenshots": [
+      "store/edge/screenshots/01-generate.png",
+      "store/edge/screenshots/02-shape.png",
+      "store/edge/screenshots/03-fill-field.png"
+    ],
+    "screenshotSize": [1280, 800],
+    "optionalPromoTile": null
+  },
+  "documents": {
+    "privacyPolicy": "store/edge/privacy-policy.md",
+    "permissionJustifications": "store/edge/permission-justifications.md",
+    "reviewerNotes": "store/edge/reviewer-notes.md"
+  },
+  "productId": null,
+  "submissionId": null,
+  "operationId": null,
+  "officialStatus": "NOT_SUBMITTED",
+  "publicListingUrl": null
+}
