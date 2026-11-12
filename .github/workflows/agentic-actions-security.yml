@@ -32,8 +32,6 @@ jobs:
     name: security Actions CodeQL
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      SARIF_OUTPUT_DIR: ${{ runner.temp }}/agentic-actions-codeql-${{ github.run_id }}-${{ github.run_attempt }}
     permissions:
       contents: read
       actions: read
@@ -47,6 +45,8 @@ jobs:
           languages: actions
           build-mode: none
       - name: Require fresh run-bound SARIF output directory
+        env:
+          SARIF_OUTPUT_DIR: ${{ runner.temp }}/agentic-actions-codeql-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           python3 - <<'PY'
           import os
@@ -61,8 +61,10 @@ jobs:
           category: agentic-actions
           upload: never
           upload-database: false
-          output: ${{ env.SARIF_OUTPUT_DIR }}
+          output: ${{ runner.temp }}/agentic-actions-codeql-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Enforce actual supplemental Actions CodeQL findings
+        env:
+          SARIF_OUTPUT_DIR: ${{ runner.temp }}/agentic-actions-codeql-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           python3 - <<'PY'
           import json, os
@@ -103,6 +105,6 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: actions-codeql-sarif
-          path: ${{ env.SARIF_OUTPUT_DIR }}/*.sarif
+          path: ${{ runner.temp }}/agentic-actions-codeql-${{ github.run_id }}-${{ github.run_attempt }}/*.sarif
           if-no-files-found: error
           retention-days: 30
