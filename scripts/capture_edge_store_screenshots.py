@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import random
 import sys
 import tempfile
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, __version__ as pillow_version
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -170,6 +172,7 @@ def capture() -> dict:
     report = {
         "schemaVersion": 1,
         "browser": "msedge",
+        "pillowVersion": pillow_version,
         "screenshots": [
             "store/edge/screenshots/01-generate.png",
             "store/edge/screenshots/02-shape.png",
@@ -177,10 +180,14 @@ def capture() -> dict:
         ],
         "size": [1280, 800],
         "source": "Real packaged popup and public review fixture loaded in Microsoft Edge",
+        "sha256": {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(OUT.glob("*.png"))},
     }
     (OUT / "capture-report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output-dir", type=Path, default=OUT)
+    OUT = parser.parse_args().output_dir.resolve()
     sys.stdout.write(json.dumps(capture(), indent=2) + "\n")
